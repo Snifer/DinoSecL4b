@@ -3,10 +3,12 @@
 
 Este proyecto proporciona una infraestructura rápida y sencilla para configurar un laboratorio de pentesting vulnerable utilizando Docker. 
 
-Permite a los profesionales de seguridad y entusiastas realizar pruebas y prácticas de pentesting de manera segura.
+Permite a todo aquel que desea aprender y practicar realizar pruebas y prácticas de pentesting web e infraestructura de manera segura.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/Snifer/DinoSecL4b/main/DinoSecLab.webp?token=GHSAT0AAAAAACL7M5SD5I7I7JMBOEVWRBXCZMI45PQ" width=50% height=50%>
+</p>
 
-![Logo]()
 
 ## Caracteristicas
 
@@ -23,22 +25,30 @@ Permite a los profesionales de seguridad y entusiastas realizar pruebas y práct
 
 ## Plan de desarrollo
 
+###  Vulnerabilidades 
 
-- [ ]  TOP 10 Owasp
-    - [ ]  Broken Access Control
-    - [ ]  Cryptographic Failures
-    - [ ]  Injection
-    - [ ]  Insecure Design
-    - [ ]  Security Misconfiguration
-        - [ ]  XXE
-    - [ ]  Vulnerable and Outdated Components 
-    - [ ]  Identification and Authentication Failures
-    - [ ]  Software and Data Integrity Failures 
-    - [ ]  Security Logging and Monitoring Failures
-    - [ ]  Server-Side Request Forgery
-- [ ]  Servicio vulnerable de API
-- [ ]  Panel de registro de flags
-- [ ]  Interfaz de administración
+- [ ]  Cryptographic Failures
+    - [ ] No se almacena los credenciales cifrados      
+- [ ]  SQL Injection
+    - [ ] Login  
+- [ ]  Insecure Design
+- [ ]  Security Misconfiguration
+- [ ]  XXE
+- [ ]  Vulnerable and Outdated Components 
+- [ ]  Identification and Authentication Failures
+- [ ]  Software and Data Integrity Failures 
+- [ ]  Security Logging and Monitoring Failures
+- [ ]  Server-Side Request Forgery
+
+
+- [ ] API Vulnerable
+- [ ] 
+
+### Adiciones 
+
+- [ ]  Servicio vulnerable de API.
+- [ ]  Panel de registro de flags.
+- [ ]  Interfaz de administración.
 - [ ]  
 
 
