@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./web:/var/www/html
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    links:
+      - db
+
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_DinoSec
+      MYSQL_DATABASE: DinoSec_db
+      MYSQL_USER: app_DinoSec
+      MYSQL_PASSWORD: app_DinoSec
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+
