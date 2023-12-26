@@ -6,7 +6,7 @@ Este proyecto proporciona una infraestructura rápida y sencilla para configurar
 Permite a todo aquel que desea aprender y practicar realizar pruebas y prácticas de pentesting web e infraestructura de manera segura.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/Snifer/DinoSecL4b/main/DinoSecLab.webp?token=GHSAT0AAAAAACL7M5SD5I7I7JMBOEVWRBXCZMI45PQ" width=50% height=50%>
+<img src="https://github.com/Snifer/DinoSecL4b/blob/main/Dino.png?raw=true" width=50% height=50%>
 </p>
 
 
