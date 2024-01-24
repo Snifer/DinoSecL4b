@@ -9,6 +9,8 @@ Permite a todo aquel que desea aprender y practicar realizar pruebas y práctica
 <img src="https://github.com/Snifer/DinoSecL4b/blob/main/Dino.png?raw=true" width=50% height=50%>
 </p>
 
+<p align="center"> <a href='https://ko-fi.com/sniferl4bs' target='_blank'><img height='35' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></p>
+
 
 ## Caracteristicas
 
@@ -27,29 +29,23 @@ Permite a todo aquel que desea aprender y practicar realizar pruebas y práctica
 
 ###  Vulnerabilidades 
 
-- [ ]  Cryptographic Failures
-    - [ ] No se almacena los credenciales cifrados      
-- [ ]  SQL Injection
-    - [ ] Login  
-- [ ]  Insecure Design
-- [ ]  Security Misconfiguration
-- [ ]  XXE
-- [ ]  Vulnerable and Outdated Components 
-- [ ]  Identification and Authentication Failures
-- [ ]  Software and Data Integrity Failures 
-- [ ]  Security Logging and Monitoring Failures
-- [ ]  Server-Side Request Forgery
-
-
-- [ ] API Vulnerable
-- [ ] 
+- Cryptographic Failures
+- SQL Injection
+- Insecure Design
+- Security Misconfiguration
+- XXE
+- Vulnerable and Outdated Components 
+- Identification and Authentication Failures
+- Software and Data Integrity Failures 
+- Security Logging and Monitoring Failures
+- Server-Side Request Forgery
+- API Vulnerable
 
 ### Adiciones 
 
-- [ ]  Servicio vulnerable de API.
-- [ ]  Panel de registro de flags.
-- [ ]  Interfaz de administración.
-- [ ]  
+- Panel de registro de flags.
+- Interfaz de administración.
+
 
 
 ## Uso
@@ -76,13 +72,6 @@ docker-compose up -d
 Con esto inicializaras los contenedores y se configurará de manera automatica el laboratorio. 
 
 Puedes acceder al inicio del laboratorio desde https://localhost
-## Deployment
-
-To deploy this project run
-
-```bash
-  npm run deploy
-```
 
 
 ## FAQ
