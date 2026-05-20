@@ -1,0 +1,183 @@
+name: Hall of Fame
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  update-hall-of-fame:
+    # Only run on issues that contain the DinosecLabs score marker
+    if: contains(github.event.issue.body, '<!-- DINOSEC_SCORE')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Ensure hall-of-fame label exists
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.issues.getLabel({ ...context.repo, name: 'hall-of-fame' });
+            } catch(_) {
+              await github.rest.issues.createLabel({
+                ...context.repo,
+                name: 'hall-of-fame',
+                color: 'f9d71c',
+                description: 'DinosecLabs Hall of Fame score submission'
+              });
+            }
+
+      - name: Parse score and update leaderboard
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body;
+
+            // ── Extract score block ─────────────────────────────────
+            const match = body.match(/<!-- DINOSEC_SCORE\n([\s\S]*?)\/DINOSEC_SCORE -->/);
+            if (!match) {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.payload.issue.number,
+                body: '❌ Could not parse score data. Make sure you used the DinosecLabs dashboard to generate this submission.'
+              });
+              return;
+            }
+
+            const block = match[1];
+            const get = (key) => {
+              const m = block.match(new RegExp(`^${key}:\\s*(.+)$`, 'm'));
+              return m ? m[1].trim() : null;
+            };
+
+            const alias      = get('alias')      || 'Anonymous';
+            const coins      = parseInt(get('coins')      || '0', 10);
+            const flags      = parseInt(get('flags')      || '0', 10);
+            const totalFlags = parseInt(get('total_flags')|| '21', 10);
+            const labs       = parseInt(get('labs')       || '0', 10);
+            const date       = get('date') || new Date().toISOString().slice(0, 10);
+
+            if (coins < 0 || flags < 0 || flags > totalFlags) {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.payload.issue.number,
+                body: '❌ Invalid score data detected. Submission rejected.'
+              });
+              await github.rest.issues.update({
+                ...context.repo,
+                issue_number: context.payload.issue.number,
+                state: 'closed'
+              });
+              return;
+            }
+
+            // ── Read existing scores ────────────────────────────────
+            const fs    = require('fs');
+            const path  = 'owasp-labs/scores.json';
+            let scores  = [];
+            try {
+              scores = JSON.parse(fs.readFileSync(path, 'utf8'));
+            } catch (_) { scores = []; }
+
+            // Remove previous entry for this alias (keep best score)
+            const existing = scores.find(s => s.alias.toLowerCase() === alias.toLowerCase());
+            if (existing) {
+              if (coins <= existing.coins) {
+                await github.rest.issues.createComment({
+                  ...context.repo,
+                  issue_number: context.payload.issue.number,
+                  body: `ℹ️ **${alias}** already has a higher or equal score (${existing.coins} 🪙). Your previous record is kept.\n\nThanks for playing DinosecLabs! 🦕`
+                });
+                await github.rest.issues.update({
+                  ...context.repo,
+                  issue_number: context.payload.issue.number,
+                  state: 'closed',
+                  labels: ['hall-of-fame']
+                });
+                return;
+              }
+              scores = scores.filter(s => s.alias.toLowerCase() !== alias.toLowerCase());
+            }
+
+            // Add new entry
+            scores.push({ alias, coins, flags, total_flags: totalFlags, labs, date });
+
+            // Sort by coins desc, then flags desc
+            scores.sort((a, b) => b.coins - a.coins || b.flags - a.flags);
+
+            // ── Write scores.json ───────────────────────────────────
+            fs.writeFileSync(path, JSON.stringify(scores, null, 2) + '\n');
+
+            // ── Generate HALL_OF_FAME.md ────────────────────────────
+            const medals = ['🥇', '🥈', '🥉'];
+            const rows = scores.map((s, i) => {
+              const rank  = medals[i] || `#${i + 1}`;
+              const bar   = '▓'.repeat(Math.round(s.flags / s.total_flags * 10)) +
+                            '░'.repeat(10 - Math.round(s.flags / s.total_flags * 10));
+              return `| ${rank} | **${s.alias}** | ${s.coins} 🪙 | ${s.flags}/${s.total_flags} \`${bar}\` | ${s.labs}/10 | ${s.date} |`;
+            }).join('\n');
+
+            const md = `# 🏆 Hall of Fame — DinosecLabs
+
+> OWASP Top 10 · 2025 · Ethical Hacking Lab
+
+<!-- scores-table-start -->
+| Rank | Player | Coins | Flags | Labs | Date |
+|:----:|--------|------:|:-----:|:----:|------|
+${rows || '| — | *No entries yet* | — | — | — | — |'}
+<!-- scores-table-end -->
+
+---
+
+*Scores are self-reported via the DinosecLabs dashboard.*
+*Max score: 3000 🪙 · 21 flags · 10 labs*
+*Repository: [Snifer/DinoSecL4b](https://github.com/Snifer/DinoSecL4b)*
+`;
+
+            fs.writeFileSync('owasp-labs/HALL_OF_FAME.md', md);
+
+            // ── Commit and push ─────────────────────────────────────
+            const { execSync } = require('child_process');
+            execSync('git config user.name "DinosecLabs Bot"');
+            execSync('git config user.email "bot@dinoseclabs.io"');
+            execSync('git add owasp-labs/scores.json owasp-labs/HALL_OF_FAME.md');
+            execSync(`git commit -m "🏆 Hall of Fame: ${alias} — ${coins} coins (${flags}/${totalFlags} flags)"`);
+            execSync('git push');
+
+            // ── Comment and close issue ─────────────────────────────
+            const rank = scores.findIndex(s => s.alias.toLowerCase() === alias.toLowerCase()) + 1;
+            const medal = medals[rank - 1] || `#${rank}`;
+
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.payload.issue.number,
+              body: `## 🦕 Score Recorded!
+
+${medal} **${alias}** is now ranked **#${rank}** on the DinosecLabs leaderboard!
+
+| Stat | Value |
+|------|-------|
+| 🪙 Coins | **${coins}** / 3000 |
+| 🚩 Flags | **${flags}** / ${totalFlags} |
+| 🧪 Labs | **${labs}** / 10 |
+| 📅 Date | ${date} |
+
+View the full leaderboard: [HALL_OF_FAME.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/owasp-labs/HALL_OF_FAME.md)
+
+Thanks for playing DinosecLabs! 🦕`
+            });
+
+            await github.rest.issues.update({
+              ...context.repo,
+              issue_number: context.payload.issue.number,
+              state: 'closed',
+              labels: ['hall-of-fame']
+            });

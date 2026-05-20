@@ -1,0 +1,164 @@
+{
+  "id": "owasp-top10-2025",
+  "name": "OWASP Top 10 2025",
+  "version": "1.1",
+  "icon": "🛡️",
+  "description": "The OWASP Top 10 2025 — ten standalone vulnerable corporate applications.",
+  "labs": [
+    {
+      "id": "a01", "service": "a01-broken-access-control",  "container": "owasp-a01",
+      "title": "A01:2025", "name": "Broken Access Control",
+      "port": 8001, "color": "#e74c3c", "icon": "🔓",
+      "difficulty": "medium",
+      "description": "Restrictions on what authenticated users are allowed to do are often not properly enforced.",
+      "vulns": ["a01_idor","a01_path"]
+    },
+    {
+      "id": "a02", "service": "a02-security-misconfiguration", "container": "owasp-a02",
+      "title": "A02:2025", "name": "Security Misconfiguration",
+      "port": 8002, "color": "#e67e22", "icon": "⚙️",
+      "difficulty": "easy",
+      "description": "The most commonly seen issue. Without a concerted, repeatable hardening process, systems are at risk.",
+      "vulns": ["a02_secrets","a02_backup"]
+    },
+    {
+      "id": "a03", "service": "a03-supply-chain", "container": "owasp-a03",
+      "title": "A03:2025", "name": "Software Supply Chain Failures",
+      "port": 8003, "color": "#f39c12", "icon": "📦",
+      "difficulty": "medium",
+      "description": "Software and data integrity failures relate to code and infrastructure that does not protect against integrity violations.",
+      "vulns": ["a03_cve","a03_deps"]
+    },
+    {
+      "id": "a04", "service": "a04-cryptographic-failures", "container": "owasp-a04",
+      "title": "A04:2025", "name": "Cryptographic Failures",
+      "port": 8004, "color": "#8e44ad", "icon": "🔑",
+      "difficulty": "medium",
+      "description": "Failures related to cryptography which often lead to exposure of sensitive data or system compromise.",
+      "vulns": ["a04_hash","a04_jwt"]
+    },
+    {
+      "id": "a05", "service": "a05-injection", "container": "owasp-a05",
+      "title": "A05:2025", "name": "Injection",
+      "port": 8005, "color": "#c0392b", "icon": "💉",
+      "difficulty": "hard",
+      "description": "User-supplied data is not validated, filtered, or sanitised by the application.",
+      "vulns": ["a05_sqli","a05_rce","a05_ssti"]
+    },
+    {
+      "id": "a06", "service": "a06-insecure-design", "container": "owasp-a06",
+      "title": "A06:2025", "name": "Insecure Design",
+      "port": 8006, "color": "#16a085", "icon": "🏗️",
+      "difficulty": "medium",
+      "description": "A broad category representing different weaknesses, expressed as missing or ineffective control design.",
+      "vulns": ["a06_obscur","a06_logic"]
+    },
+    {
+      "id": "a07", "service": "a07-auth-failures", "container": "owasp-a07",
+      "title": "A07:2025", "name": "Authentication Failures",
+      "port": 8007, "color": "#2980b9", "icon": "🔐",
+      "difficulty": "medium",
+      "description": "Confirmation of the user's identity, authentication, and session management is critical.",
+      "vulns": ["a07_force","a07_token"]
+    },
+    {
+      "id": "a08", "service": "a08-integrity-failures", "container": "owasp-a08",
+      "title": "A08:2025", "name": "Software or Data Integrity Failures",
+      "port": 8008, "color": "#27ae60", "icon": "📋",
+      "difficulty": "hard",
+      "description": "Code and infrastructure that does not protect against integrity violations.",
+      "vulns": ["a08_pickle","a08_tamper"]
+    },
+    {
+      "id": "a09", "service": "a09-logging-failures", "container": "owasp-a09",
+      "title": "A09:2025", "name": "Security Logging & Alerting Failures",
+      "port": 8009, "color": "#7f8c8d", "icon": "📝",
+      "difficulty": "easy",
+      "description": "Without logging and monitoring, breaches cannot be detected.",
+      "vulns": ["a09_passwd","a09_inject"]
+    },
+    {
+      "id": "a10", "service": "a10-exceptional-conditions", "container": "owasp-a10",
+      "title": "A10:2025", "name": "Mishandling of Exceptional Conditions",
+      "port": 8010, "color": "#1abc9c", "icon": "💥",
+      "difficulty": "medium",
+      "description": "Applications that fail to handle error conditions safely can expose internal state.",
+      "vulns": ["a10_trace","a10_bypass"]
+    }
+  ],
+  "hints": {
+    "a01": [
+      {"level":1,"cost":50,"text":"User identifiers in the URLs are sequential integers. There are at least 4 registered users in the system."},
+      {"level":2,"cost":75,"text":"Try modifying the numeric ID in /profile/N with different values. Does the server verify that the requested profile belongs to you?"},
+      {"level":3,"cost":100,"text":"The document reader builds the file path by concatenating user input without sanitisation. Try sequences like ../ to escape the base directory and read server files."}
+    ],
+    "a02": [
+      {"level":1,"cost":50,"text":"Misconfigured servers often have diagnostic endpoints active in production and configuration files publicly accessible."},
+      {"level":2,"cost":75,"text":"Try common paths: /debug, /config, /backup. Default credentials are a common risk in administration panels."},
+      {"level":3,"cost":100,"text":"There is a /backup directory with file listing enabled. The .sql and .csv files inside contain credentials and internal tokens."}
+    ],
+    "a03": [
+      {"level":1,"cost":50,"text":"The listed dependency versions date from 2018-2020. Cross-reference them against public CVE databases to identify critical vulnerabilities."},
+      {"level":2,"cost":75,"text":"Search NVD or OSV for the installed versions. One of the packages has a CRITICAL-rated CVE for arbitrary code execution."},
+      {"level":3,"cost":100,"text":"pyyaml 3.13 is affected by CVE-2020-1747 (CRITICAL). The install simulator accepts internal package names that could be hijacked on public PyPI."}
+    ],
+    "a04": [
+      {"level":1,"cost":50,"text":"The system stores credentials using a hashing algorithm designed for speed, not security. The hashes are visible in the application."},
+      {"level":2,"cost":75,"text":"MD5 without salt is crackable in seconds with rainbow tables. Tools like CrackStation or hashcat -m 0 can reverse it instantly."},
+      {"level":3,"cost":100,"text":"JWT tokens use a short, predictable secret. Decode the JWT, change the payload to role=admin, and re-sign it with the correct secret using jwt.io."}
+    ],
+    "a05": [
+      {"level":1,"cost":50,"text":"The store search form builds database queries by directly concatenating user input without parameterisation."},
+      {"level":2,"cost":75,"text":"Try classic SQL injection: a single quote breaks the query. UNION SELECT lets you retrieve data from other tables, including a secrets table."},
+      {"level":3,"cost":100,"text":"The connectivity tool passes user input directly to a system command. Append ; followed by OS commands to execute code on the server."}
+    ],
+    "a06": [
+      {"level":1,"cost":50,"text":"The shopping system does not validate the range of numeric values submitted in the order form."},
+      {"level":2,"cost":75,"text":"Submitting a negative quantity produces a negative total. The system processes it without any restrictions."},
+      {"level":3,"cost":100,"text":"There is an administration panel accessible without real authentication. The URL does not appear in the visible navigation but the endpoint is active."}
+    ],
+    "a07": [
+      {"level":1,"cost":50,"text":"The login system does not implement any mechanism to protect against repeated failed authentication attempts."},
+      {"level":2,"cost":75,"text":"Thousands of login attempts can be made without lockout or CAPTCHA. Account passwords are short and common."},
+      {"level":3,"cost":100,"text":"The password reset token is generated predictably using the user's email and a rounded timestamp. It is reproducible if you know both values."}
+    ],
+    "a08": [
+      {"level":1,"cost":50,"text":"The update system accepts serialised data from the client and processes it without verifying its integrity or origin."},
+      {"level":2,"cost":75,"text":"Python pickle executes arbitrary code during deserialisation. Define a class with __reduce__ returning a tuple (os.system, ('command',)) and serialise it in base64."},
+      {"level":3,"cost":100,"text":"Session cookies are Python dicts encoded in base64 without an HMAC signature. Modify the role field to admin, re-encode in base64 and replace the cookie."}
+    ],
+    "a09": [
+      {"level":1,"cost":50,"text":"The system logs authentication events including more information than strictly necessary."},
+      {"level":2,"cost":75,"text":"The system log file is publicly accessible. Successful login entries include the user's credentials in plain text."},
+      {"level":3,"cost":100,"text":"The report form writes user input directly to the log file without any sanitisation, allowing injection of fake log entries."}
+    ],
+    "a10": [
+      {"level":1,"cost":50,"text":"The application does not properly handle runtime errors and exposes internal server information in HTTP responses."},
+      {"level":2,"cost":75,"text":"Sending unexpected data types or JSON structures with missing keys triggers unhandled exceptions that include the full stack trace with configuration variables."},
+      {"level":3,"cost":100,"text":"Certain endpoints have a try/except block that catches TypeError but returns sensitive data as part of the error handler. Try non-existent resource IDs."}
+    ]
+  },
+  "flag_registry": {
+    "a01_idor":   {"lab":"a01","coins":100,"name":"IDOR — admin profile accessed"},
+    "a01_path":   {"lab":"a01","coins":150,"name":"Path Traversal — .env file read"},
+    "a02_secrets":{"lab":"a02","coins":100,"name":"Secrets exposed on public endpoint"},
+    "a02_backup": {"lab":"a02","coins":100,"name":"Accessible backup with sensitive data"},
+    "a03_cve":    {"lab":"a03","coins":100,"name":"Critical CVE identified"},
+    "a03_deps":   {"lab":"a03","coins":150,"name":"Dependency confusion attack"},
+    "a04_hash":   {"lab":"a04","coins":100,"name":"MD5 hash cracked"},
+    "a04_jwt":    {"lab":"a04","coins":150,"name":"JWT forged with admin role"},
+    "a05_sqli":   {"lab":"a05","coins":150,"name":"SQL Injection — database exfiltrated"},
+    "a05_rce":    {"lab":"a05","coins":200,"name":"Command Injection — RCE"},
+    "a05_ssti":   {"lab":"a05","coins":200,"name":"SSTI — template code execution"},
+    "a06_obscur": {"lab":"a06","coins":100,"name":"Hidden admin panel — security by obscurity"},
+    "a06_logic":  {"lab":"a06","coins":150,"name":"Business logic — negative price"},
+    "a07_force":  {"lab":"a07","coins":150,"name":"Brute force — no rate limiting"},
+    "a07_token":  {"lab":"a07","coins":150,"name":"Predictable password reset token"},
+    "a08_pickle": {"lab":"a08","coins":200,"name":"Insecure deserialization — RCE"},
+    "a08_tamper": {"lab":"a08","coins":100,"name":"Cookie tampering — privilege escalation"},
+    "a09_passwd": {"lab":"a09","coins":100,"name":"Plaintext password in log file"},
+    "a09_inject": {"lab":"a09","coins":150,"name":"Log injection executed"},
+    "a10_trace":  {"lab":"a10","coins":100,"name":"Full stack trace exposed"},
+    "a10_bypass": {"lab":"a10","coins":150,"name":"Exception bypass — validation skipped"}
+  }
+}

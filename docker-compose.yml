@@ -1,26 +1,172 @@
-version: '3'
+version: "3.9"
+
+networks:
+  owasp-net:
+    driver: bridge
+
+volumes:
+  dashboard-data:
 
 services:
-  web:
+  # ─────────────────────────────────────────
+  # DASHBOARD DE CONTROL
+  # ─────────────────────────────────────────
+  dashboard:
     build:
       context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./web:/var/www/html
+      dockerfile: dashboard/Dockerfile
+    container_name: owasp-dashboard
     ports:
-      - "80:80"
-    depends_on:
-      - db
-    links:
-      - db
-
-  db:
-    image: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root_DinoSec
-      MYSQL_DATABASE: DinoSec_db
-      MYSQL_USER: app_DinoSec
-      MYSQL_PASSWORD: app_DinoSec
+      - "8000:8000"
     volumes:
-      - ./db:/docker-entrypoint-initdb.d
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker-compose:/usr/bin/docker-compose:ro
+      - .:/project:ro
+      - dashboard-data:/data
+    environment:
+      - COMPOSE_DIR=/project
+      - DB_PATH=/data/progress.db
+      - TRACKS_DIR=/project/tracks
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+      - AUTO_STOP_HOURS=${AUTO_STOP_HOURS:-4}
+    networks:
+      - owasp-net
+    restart: unless-stopped
 
+  # A01 - Broken Access Control
+  a01-broken-access-control:
+    build:
+      context: .
+      dockerfile: labs/a01-broken-access-control/Dockerfile
+    container_name: owasp-a01
+    ports:
+      - "8001:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a01"]
+
+  # A02 - Security Misconfiguration
+  a02-security-misconfiguration:
+    build:
+      context: .
+      dockerfile: labs/a02-security-misconfiguration/Dockerfile
+    container_name: owasp-a02
+    ports:
+      - "8002:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a02"]
+
+  # A03 - Software Supply Chain Failures
+  a03-supply-chain:
+    build:
+      context: .
+      dockerfile: labs/a03-supply-chain/Dockerfile
+    container_name: owasp-a03
+    ports:
+      - "8003:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a03"]
+
+  # A04 - Cryptographic Failures
+  a04-cryptographic-failures:
+    build:
+      context: .
+      dockerfile: labs/a04-cryptographic-failures/Dockerfile
+    container_name: owasp-a04
+    ports:
+      - "8004:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a04"]
+
+  # A05 - Injection
+  a05-injection:
+    build:
+      context: .
+      dockerfile: labs/a05-injection/Dockerfile
+    container_name: owasp-a05
+    ports:
+      - "8005:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a05"]
+
+  # A06 - Insecure Design
+  a06-insecure-design:
+    build:
+      context: .
+      dockerfile: labs/a06-insecure-design/Dockerfile
+    container_name: owasp-a06
+    ports:
+      - "8006:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a06"]
+
+  # A07 - Authentication Failures
+  a07-auth-failures:
+    build:
+      context: .
+      dockerfile: labs/a07-auth-failures/Dockerfile
+    container_name: owasp-a07
+    ports:
+      - "8007:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a07"]
+
+  # A08 - Software or Data Integrity Failures
+  a08-integrity-failures:
+    build:
+      context: .
+      dockerfile: labs/a08-integrity-failures/Dockerfile
+    container_name: owasp-a08
+    ports:
+      - "8008:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a08"]
+
+  # A09 - Security Logging and Alerting Failures
+  a09-logging-failures:
+    build:
+      context: .
+      dockerfile: labs/a09-logging-failures/Dockerfile
+    container_name: owasp-a09
+    ports:
+      - "8009:5000"
+    networks:
+      - owasp-net
+    environment:
+      - FLAG_SECRET=${FLAG_SECRET:-dinoseclabs-default-secret}
+    profiles: ["a09"]
+
+  # A10 - Mishandling of Exceptional Conditions
+  a10-exceptional-conditions:
+    build:
+      context: .
+      dockerfile: labs/a10-exceptional-conditions/Dockerfile
+    container_name: owasp-a10
+    ports:
+      - "8010:5000"
+    networks:
+      - owasp-net
+    profiles: ["a10"]

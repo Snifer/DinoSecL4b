@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OWASP Top 10 2025 — DinosecLabs</title>
+  <style>
+    :root {
+      --bg:#0d1117; --surface:#161b22; --surface2:#21262d;
+      --border:#30363d; --text:#e6edf3; --muted:#8b949e;
+      --green:#3fb950; --red:#f85149; --yellow:#d29922;
+      --blue:#58a6ff; --purple:#a371f7; --orange:#e67e22;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+
+    /* Header */
+    header{background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 1.5rem;
+      display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    .logo{font-size:1.25rem;font-weight:700;letter-spacing:.03em}
+    .logo span{color:var(--red)}
+    .header-right{display:flex;align-items:center;gap:1rem}
+    .coin-display{display:flex;align-items:center;gap:.4rem;background:var(--surface2);
+      border:1px solid var(--border);padding:.35rem .8rem;border-radius:20px;font-size:.88rem;font-weight:600}
+    .coin-display .coin-icon{font-size:1rem}
+    .coin-amount{color:var(--yellow)}
+    .btn-hof{background:rgba(210,153,34,.12);border:1px solid rgba(210,153,34,.35);color:var(--yellow);
+      padding:.3rem .8rem;border-radius:5px;font-size:.78rem;font-weight:600;cursor:pointer}
+    .btn-hof:hover{background:rgba(210,153,34,.22)}
+    .btn-reset{background:none;border:1px solid var(--border);color:var(--muted);
+      padding:.3rem .7rem;border-radius:5px;font-size:.75rem;cursor:pointer}
+    .btn-reset:hover{color:var(--red);border-color:var(--red)}
+
+    /* ── Tab nav ── */
+    .tab-nav{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem}
+    .tab-btn{background:none;border:none;color:var(--muted);padding:.75rem 1.1rem;font-size:.85rem;
+      font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:inherit}
+    .tab-btn:hover{color:var(--text)}
+    .tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+    .tab-section{display:none}
+    .tab-section.active{display:block}
+
+    /* ── About & Roadmap ── */
+    .page-wrap{max-width:960px;margin:0 auto;padding:1.5rem}
+    .info-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      padding:1.5rem;margin-bottom:1.2rem}
+    .info-card h2{font-size:1rem;font-weight:700;margin-bottom:.9rem;color:var(--text)}
+    .info-card h3{font-size:.88rem;font-weight:600;color:var(--blue);margin:.9rem 0 .4rem}
+    .info-card p{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:.5rem}
+    .info-card ul{padding-left:1.2rem;color:var(--muted);font-size:.85rem;line-height:1.9}
+    .tag{display:inline-block;padding:.2rem .6rem;border-radius:4px;font-size:.72rem;font-weight:600;margin:.2rem}
+    .tag-blue{background:rgba(88,166,255,.12);color:var(--blue);border:1px solid rgba(88,166,255,.25)}
+    .tag-green{background:rgba(63,185,80,.12);color:var(--green);border:1px solid rgba(63,185,80,.25)}
+    .tag-yellow{background:rgba(210,153,34,.12);color:var(--yellow);border:1px solid rgba(210,153,34,.25)}
+    .tag-red{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.25)}
+    .tag-muted{background:rgba(139,148,158,.1);color:var(--muted);border:1px solid var(--border)}
+    .avatar{width:52px;height:52px;border-radius:50%;border:2px solid var(--border)}
+    .dev-row{display:flex;align-items:center;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
+    .dev-row:last-child{border-bottom:none}
+    .road-item{display:flex;gap:1rem;align-items:flex-start;padding:.8rem 0;border-bottom:1px solid var(--border)}
+    .road-item:last-child{border-bottom:none}
+    .road-icon{font-size:1.4rem;flex-shrink:0;width:2rem;text-align:center;margin-top:.1rem}
+    .road-title{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.25rem}
+    .road-desc{font-size:.82rem;color:var(--muted);line-height:1.6}
+    .status-pill{display:inline-block;padding:.15rem .55rem;border-radius:20px;font-size:.68rem;font-weight:700;letter-spacing:.04em}
+    .pill-soon{background:rgba(63,185,80,.12);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+    .pill-planned{background:rgba(88,166,255,.1);color:var(--blue);border:1px solid rgba(88,166,255,.25)}
+    .pill-idea{background:rgba(139,148,158,.08);color:var(--muted);border:1px solid var(--border)}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+    @media(max-width:640px){.two-col{grid-template-columns:1fr}}
+
+    /* Stats */
+    .stats-bar{display:flex;gap:1.5rem;padding:.8rem 1.5rem;background:var(--surface);
+      border-bottom:1px solid var(--border);flex-wrap:wrap}
+    .stat{text-align:center;min-width:80px}
+    .stat-val{font-size:1.4rem;font-weight:700}
+    .stat-lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:.1rem}
+    .green{color:var(--green)} .red{color:var(--red)} .yellow{color:var(--yellow)} .blue{color:var(--blue)}
+    .progress-bar-wrap{flex:1;min-width:180px;display:flex;align-items:center;gap:.75rem}
+    .progress-bar{height:6px;background:var(--border);border-radius:3px;flex:1;overflow:hidden}
+    .progress-bar-fill{height:100%;background:var(--green);border-radius:3px;transition:width .4s}
+    .progress-lbl{font-size:.75rem;color:var(--muted);white-space:nowrap}
+
+    /* Grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:1rem;padding:1.2rem 1.5rem;max-width:1600px;margin:0 auto}
+
+    /* Card */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      display:flex;flex-direction:column;gap:.75rem;padding:1.1rem;position:relative;
+      overflow:hidden;transition:border-color .2s}
+    .card::before{display:none}
+    .card:hover{border-color:#484f58}
+    .card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem}
+    .card-icon{font-size:1.6rem;line-height:1;flex-shrink:0}
+    .card-title-block{flex:1}
+    .card-owasp{font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .card-name{font-size:.96rem;font-weight:700;margin-top:.1rem}
+    .card-desc{font-size:.8rem;color:var(--muted);line-height:1.5}
+
+    /* Status badge */
+    .badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;
+      border-radius:20px;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+    .badge::before{content:'●';font-size:.55rem}
+    .badge-running{background:rgba(63,185,80,.12);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+    .badge-stopped{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.25)}
+    .badge-loading{background:rgba(210,153,34,.1);color:var(--yellow);border:1px solid rgba(210,153,34,.3)}
+    .badge-unknown{background:rgba(139,148,158,.08);color:var(--muted);border:1px solid var(--border)}
+
+    /* Flag progress */
+    .flag-progress{display:flex;align-items:center;gap:.5rem}
+    .flag-pip-row{display:flex;gap:.25rem}
+    .flag-pip{width:10px;height:10px;border-radius:2px;background:var(--border);transition:background .3s}
+    .flag-pip.found{background:var(--yellow)}
+    .flag-count{font-size:.75rem;color:var(--muted)}
+
+    /* Actions */
+    .card-actions{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center}
+    .port-chip{font-size:.7rem;color:var(--muted);background:var(--surface2);
+      padding:.15rem .45rem;border-radius:3px;font-family:monospace;border:1px solid var(--border)}
+    .btn{padding:.4rem .85rem;border-radius:5px;border:1px solid transparent;font-size:.78rem;
+      font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:.3rem;
+      text-decoration:none;white-space:nowrap}
+    .btn:active{transform:scale(.97)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+    .btn-start{background:rgba(63,185,80,.12);color:var(--green);border-color:rgba(63,185,80,.35)}
+    .btn-stop{background:rgba(248,81,73,.1);color:var(--red);border-color:rgba(248,81,73,.3)}
+    .btn-open{background:rgba(88,166,255,.1);color:var(--blue);border-color:rgba(88,166,255,.25)}
+    .btn-flag{background:rgba(210,153,34,.12);color:var(--yellow);border-color:rgba(210,153,34,.3)}
+    .btn-hints{background:rgba(163,113,247,.1);color:var(--purple);border-color:rgba(163,113,247,.25)}
+    .btn-logs{background:rgba(255,255,255,.04);color:var(--muted);border-color:var(--border)}
+    .btn-notes{background:rgba(255,255,255,.04);color:var(--muted);border-color:var(--border)}
+    .btn-notes.has-notes{color:var(--blue);border-color:rgba(88,166,255,.35);background:rgba(88,166,255,.08)}
+    .btn-reset-lab{background:rgba(255,255,255,.04);color:var(--muted);border-color:var(--border)}
+    .btn-reset-lab:hover{color:var(--yellow);border-color:rgba(210,153,34,.35)}
+    /* Health dot */
+    .health-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:.3rem;vertical-align:middle}
+    .health-ok{background:var(--green)}
+    .health-bad{background:var(--red);animation:pulse .8s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    /* Uptime chip */
+    .uptime-chip{font-size:.68rem;color:var(--muted);font-family:monospace;background:var(--surface2);
+      padding:.1rem .4rem;border-radius:3px;border:1px solid var(--border)}
+    /* Search bar */
+    .search-bar{display:flex;gap:.6rem;align-items:center;padding:.7rem 1.5rem;
+      background:var(--surface);border-bottom:1px solid var(--border)}
+    .search-bar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);
+      padding:.4rem .8rem;border-radius:6px;font-size:.85rem;width:260px;outline:none}
+    .search-bar input:focus{border-color:var(--blue)}
+    .filter-btn{background:none;border:1px solid var(--border);color:var(--muted);
+      padding:.35rem .75rem;border-radius:5px;font-size:.78rem;cursor:pointer}
+    .filter-btn.active{color:var(--blue);border-color:rgba(88,166,255,.4);background:rgba(88,166,255,.08)}
+    /* Progress modal table */
+    .prog-table{width:100%;border-collapse:collapse;font-size:.83rem}
+    .prog-table th{padding:.5rem .7rem;color:var(--muted);font-weight:600;font-size:.72rem;
+      text-align:left;border-bottom:1px solid var(--border)}
+    .prog-table td{padding:.45rem .7rem;border-bottom:1px solid var(--border)}
+    .diff-easy{color:var(--green);font-size:.7rem;font-weight:600}
+    .diff-medium{color:var(--yellow);font-size:.7rem;font-weight:600}
+    .diff-hard{color:var(--red);font-size:.7rem;font-weight:600}
+    .notes-textarea{width:100%;height:260px;background:var(--surface2);border:1px solid var(--border);
+      color:var(--text);border-radius:6px;padding:.8rem;font-family:'Cascadia Code','Fira Code',monospace;
+      font-size:.82rem;line-height:1.6;resize:vertical;outline:none}
+    .notes-textarea:focus{border-color:var(--blue)}
+    .notes-meta{font-size:.72rem;color:var(--muted);margin-top:.4rem;text-align:right}
+    .btn-start:hover{background:rgba(63,185,80,.22)}
+    .btn-stop:hover{background:rgba(248,81,73,.2)}
+    .btn-open:hover{background:rgba(88,166,255,.2)}
+    .btn-flag:hover{background:rgba(210,153,34,.22)}
+    .btn-hints:hover{background:rgba(163,113,247,.2)}
+
+    /* Modals */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;
+      align-items:center;justify-content:center;padding:1rem}
+    .overlay.active{display:flex}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      width:600px;max-width:100%;max-height:90vh;display:flex;flex-direction:column}
+    .modal-sm{width:420px}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;
+      padding:.9rem 1.2rem;border-bottom:1px solid var(--border)}
+    .modal-header h3{font-size:.95rem;font-weight:700}
+    .modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem;line-height:1}
+    .modal-close:hover{color:var(--text)}
+    .modal-body{padding:1.1rem;overflow-y:auto;flex:1}
+
+    /* Flag submit */
+    .flag-input-wrap{display:flex;gap:.5rem;margin-bottom:.8rem}
+    .flag-input-wrap input{flex:1;background:var(--surface2);border:1px solid var(--border);
+      color:var(--text);padding:.5rem .8rem;border-radius:5px;font-family:monospace;font-size:.88rem}
+    .flag-input-wrap input:focus{outline:none;border-color:var(--yellow)}
+    .flag-result{padding:.6rem .9rem;border-radius:5px;font-size:.85rem;margin-top:.4rem;display:none}
+    .flag-result.ok{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.3);color:var(--green)}
+    .flag-result.err{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);color:var(--red)}
+    .flag-result.dup{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.3);color:var(--yellow)}
+
+    /* Hints panel */
+    .hint-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;
+      padding:.85rem 1rem;margin-bottom:.6rem}
+    .hint-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+    .hint-level{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .hint-cost{font-size:.78rem;color:var(--yellow);font-weight:600}
+    .hint-text{font-size:.83rem;color:var(--text);line-height:1.55;margin-bottom:.6rem}
+    .hint-text.locked{color:var(--muted);font-style:italic;filter:blur(3px);user-select:none}
+    .hint-unlock-info{font-size:.72rem;color:var(--muted);margin-top:.3rem}
+    .hint-unlock-info .free-tag{color:var(--green);font-weight:600}
+
+    /* Logs */
+    .log-output{font-family:'Cascadia Code','Fira Code',monospace;font-size:.73rem;
+      color:#a5d6a7;background:#0d1117;padding:.9rem;border-radius:5px;
+      white-space:pre-wrap;word-break:break-all;min-height:150px}
+
+    /* Build progress */
+    .build-modal-body{padding:2rem;text-align:center}
+    .build-icon{font-size:2.5rem;margin-bottom:.75rem;animation:spin 2s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .build-bar-wrap{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin:1.2rem 0}
+    .build-bar{height:100%;width:0%;background:var(--blue);border-radius:3px;transition:width .6s}
+    .build-title{font-size:1rem;font-weight:700;color:var(--blue);margin-bottom:.3rem}
+    .build-sub{font-size:.8rem;color:var(--muted)}
+
+    /* Toast */
+    #toast{position:fixed;bottom:1.2rem;right:1.2rem;padding:.7rem 1.1rem;border-radius:7px;
+      font-size:.82rem;font-weight:600;background:var(--surface);border:1px solid var(--border);
+      transform:translateY(80px);opacity:0;transition:all .25s;z-index:300;max-width:340px}
+    #toast.show{transform:translateY(0);opacity:1}
+    #toast.ok{border-color:var(--green);color:var(--green)}
+    #toast.err{border-color:var(--red);color:var(--red)}
+    #toast.info{border-color:var(--blue);color:var(--blue)}
+
+    footer{text-align:center;padding:1.5rem;color:var(--muted);font-size:.72rem;
+      border-top:1px solid var(--border);margin-top:.5rem}
+    @media(max-width:600px){.grid{padding:.75rem;grid-template-columns:1fr}
+      header{flex-direction:column;gap:.5rem}.stats-bar{gap:1rem}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">DinosecLabs</div>
+  <div class="header-right">
+    <div class="coin-display">
+      <span class="coin-icon">🪙</span>
+      <span class="coin-amount" id="coin-count">{{ coins }}</span>
+      <span style="color:var(--muted);font-size:.75rem">Dinocoins</span>
+    </div>
+    <button class="btn-hof" onclick="openHofBoard()">🏆 Hall of Fame</button>
+    <button class="btn-reset" onclick="confirmReset()">Reset progress</button>
+  </div>
+</header>
+
+<!-- Tab navigation -->
+<nav class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('labs', this)">🛡️ OWASP Top 10 2025</button>
+  <button class="tab-btn" onclick="switchTab('api', this)">🔌 OWASP API Top 10</button>
+  <button class="tab-btn" onclick="switchTab('containers', this)">🐳 Container & K8s</button>
+  <button class="tab-btn" onclick="switchTab('about', this)">👤 About</button>
+</nav>
+
+<!-- ── LABS TAB ── -->
+<div class="tab-section active" id="tab-labs">
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-val" id="stat-run">–</div>
+    <div class="stat-lbl">Online</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val yellow" id="stat-flags">{{ found_flags }}/{{ total_flags }}</div>
+    <div class="stat-lbl">Flags</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val blue">10</div>
+    <div class="stat-lbl">Labs</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <span class="progress-lbl">Overall progress</span>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="global-progress"
+           style="width:{{ (found_flags / total_flags * 100)|round|int if total_flags else 0 }}%"></div>
+    </div>
+    <span class="progress-lbl" id="progress-pct">{{ (found_flags / total_flags * 100)|round|int if total_flags else 0 }}%</span>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="labSearch" placeholder="🔍  Search labs…" oninput="filterLabs()">
+  <button class="filter-btn active" id="filter-all"    onclick="setFilter('all',this)">All</button>
+  <button class="filter-btn"        id="filter-running" onclick="setFilter('running',this)">Online</button>
+  <button class="filter-btn"        id="filter-stopped" onclick="setFilter('stopped',this)">Offline</button>
+  <button class="filter-btn"        id="filter-done"    onclick="setFilter('done',this)">Completed</button>
+  <div style="flex:1"></div>
+  <button class="btn btn-hints" style="font-size:.78rem" onclick="openProgress()">📊 Progress</button>
+</div>
+
+<div class="grid" id="labGrid">
+  {% for lab in labs %}
+  <div class="card" id="card-{{ lab.id }}" style="--accent:{{ lab.color }}"
+       data-name="{{ lab.name|lower }}" data-status="{{ lab.status }}"
+       data-completed="{{ 'yes' if lab.completed else 'no' }}">
+    <div class="card-header">
+      <div style="display:flex;align-items:flex-start;gap:.6rem;flex:1">
+        <span class="card-icon">{{ lab.icon }}</span>
+        <div class="card-title-block">
+          <div class="card-owasp">{{ lab.title }}</div>
+          <div class="card-name">{{ lab.name }}</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
+        <span class="badge {% if lab.status=='running' %}badge-running{% elif lab.status in ['stopped','exited'] %}badge-stopped{% else %}badge-unknown{% endif %}"
+              id="badge-{{ lab.id }}">
+          {% if lab.status == 'running' %}
+            <span class="health-dot {% if lab.healthy %}health-ok{% else %}health-bad{% endif %}" id="hdot-{{ lab.id }}"></span>
+          {% endif %}
+          {{ 'stopped' if lab.status=='exited' else lab.status }}
+        </span>
+        <span class="uptime-chip" id="uptime-{{ lab.id }}" style="{% if not lab.uptime %}display:none{% endif %}">
+          {{ lab.uptime or '' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="card-desc">{{ lab.description }}</div>
+
+    <div class="flag-progress">
+      <div class="flag-pip-row" id="pips-{{ lab.id }}">
+        {% for i in range(lab.flags_total) %}
+        <div class="flag-pip {% if i < lab.flags_found %}found{% endif %}"></div>
+        {% endfor %}
+      </div>
+      <span class="flag-count" id="flag-count-{{ lab.id }}">{{ lab.flags_found }}/{{ lab.flags_total }} flags</span>
+    </div>
+
+    <div class="card-actions">
+      <span class="port-chip">:{{ lab.port }}</span>
+      <span class="diff-{{ lab.difficulty }}">{{ lab.difficulty|upper }}</span>
+      <button class="btn btn-start" id="btn-start-{{ lab.id }}" onclick="startLab('{{ lab.id }}')"
+        {% if lab.status=='running' %}disabled{% endif %}>▶ Start</button>
+      <button class="btn btn-stop" id="btn-stop-{{ lab.id }}" onclick="stopLab('{{ lab.id }}')"
+        {% if lab.status not in ['running'] %}disabled{% endif %}>⏹ Stop</button>
+      <a class="btn btn-open" href="http://localhost:{{ lab.port }}" target="_blank"
+         id="btn-open-{{ lab.id }}"
+         {% if lab.status!='running' %}style="pointer-events:none;opacity:.4"{% endif %}>🔗 Open</a>
+      <button class="btn btn-flag" onclick="openFlagModal('{{ lab.id }}','{{ lab.name }}')">🚩 Flag</button>
+      <button class="btn btn-hints"
+              data-lab-id="{{ lab.id }}"
+              data-lab-name="{{ lab.name }}"
+              data-hints='{{ lab.hints|tojson }}'
+              onclick="openHintsModal(this)">💡 Hints</button>
+      <button class="btn btn-logs" onclick="openLogs('{{ lab.id }}','{{ lab.name }}')">📄 Logs</button>
+      <button class="btn btn-notes"     id="btn-notes-{{ lab.id }}"     onclick="openNotes('{{ lab.id }}','{{ lab.name }}')">📝 Notes</button>
+      <button class="btn btn-reset-lab" id="btn-rl-{{ lab.id }}"        onclick="resetLab('{{ lab.id }}')">↺ Reset</button>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+</div><!-- end tab-labs -->
+
+<!-- ── OWASP API TAB ── -->
+<div class="tab-section" id="tab-api">
+  <div class="page-wrap">
+
+    <div class="info-card" style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <h2 style="font-size:1.1rem;margin-bottom:.5rem">🔌 OWASP API Security Top 10 · 2023</h2>
+        <p>The OWASP API Security Top 10 focuses on strategies and solutions to understand and mitigate the unique vulnerabilities and security risks of Application Programming Interfaces (APIs).</p>
+        <p>APIs expose application logic and sensitive data, making them increasingly attractive attack targets.</p>
+      </div>
+      <div style="text-align:center;padding:.75rem 1.2rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;flex-shrink:0">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--yellow)">10</div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Categories</div>
+        <div style="margin-top:.6rem;padding:.25rem .7rem;background:rgba(139,148,158,.1);border:1px solid var(--border);border-radius:20px;font-size:.72rem;color:var(--muted);font-weight:600">Labs coming soon</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem">
+
+      <!-- API1 -->
+      <div class="info-card" style="margin-bottom:0;position:relative">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API1:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Broken Object Level Authorization</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">APIs expose endpoints handling object identifiers, creating a wide attack surface. Authorization checks should be performed in every function that accesses a data source using input from the user.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">BOLA</span><span class="tag tag-muted">IDOR</span><span class="tag tag-muted">Authorization</span>
+        </div>
+      </div>
+
+      <!-- API2 -->
+      <div class="info-card" style="margin-bottom:0;position:relative">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API2:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Broken Authentication</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Authentication mechanisms are often implemented incorrectly, allowing attackers to compromise authentication tokens or to exploit implementation flaws to assume user identities temporarily or permanently.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Tokens</span><span class="tag tag-muted">JWT</span><span class="tag tag-muted">Sessions</span>
+        </div>
+      </div>
+
+      <!-- API3 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API3:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Broken Object Property Level Authorization</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Combination of Excessive Data Exposure and Mass Assignment. Lack of property-level authorization allows attackers to read or modify object properties they should not have access to.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Mass Assignment</span><span class="tag tag-muted">Data Exposure</span>
+        </div>
+      </div>
+
+      <!-- API4 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API4:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Unrestricted Resource Consumption</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Satisfying API requests requires resources such as network bandwidth, CPU, memory, and storage. Lack of restrictions on request size or frequency can lead to DoS or increased operational costs.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Rate Limiting</span><span class="tag tag-muted">DoS</span><span class="tag tag-muted">Throttling</span>
+        </div>
+      </div>
+
+      <!-- API5 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API5:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Broken Function Level Authorization</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Complex access control policies with different hierarchies, groups and roles, and an unclear separation between administrative and regular functions tend to lead to authorization flaws.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">BFLA</span><span class="tag tag-muted">Privilege Escalation</span>
+        </div>
+      </div>
+
+      <!-- API6 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API6:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Unrestricted Access to Sensitive Business Flows</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">APIs vulnerable to this risk expose a business flow — such as buying a ticket or posting a comment — without compensating for how the functionality could harm the business if used excessively.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Business Logic</span><span class="tag tag-muted">Automation Abuse</span>
+        </div>
+      </div>
+
+      <!-- API7 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API7:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Server Side Request Forgery</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">SSRF flaws occur whenever an API is fetching a remote resource without validating the user-supplied URL. This enables attackers to coerce the application into sending a crafted request to an unexpected destination.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">SSRF</span><span class="tag tag-muted">Internal Network</span>
+        </div>
+      </div>
+
+      <!-- API8 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API8:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Security Misconfiguration</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">APIs and the systems supporting them may contain misconfigurations that can be exploited by attackers: unnecessary HTTP methods enabled, permissive CORS policies, verbose error messages revealing sensitive information.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">CORS</span><span class="tag tag-muted">HTTP Methods</span><span class="tag tag-muted">Headers</span>
+        </div>
+      </div>
+
+      <!-- API9 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API9:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Improper Inventory Management</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">APIs tend to expose more endpoints than traditional web applications, making proper documentation and inventory critical. Outdated or undocumented endpoints — shadow APIs — often lack security controls.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Shadow APIs</span><span class="tag tag-muted">Versioning</span><span class="tag tag-muted">Documentation</span>
+        </div>
+      </div>
+
+      <!-- API10 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">API10:2023</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Unsafe Consumption of APIs</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Developers tend to trust data received from third-party APIs more than user input. APIs that interact with external or third-party APIs should be treated with the same security standards applied to user input.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Third-party APIs</span><span class="tag tag-muted">Trust</span><span class="tag tag-muted">Validation</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="info-card" style="margin-top:1.2rem;text-align:center;color:var(--muted);font-size:.82rem">
+      <p>OWASP API Security Top 10 2023 · <a href="https://owasp.org/API-Security/editions/2023/en/0x11-t10/" target="_blank" style="color:var(--blue)">owasp.org/API-Security</a></p>
+      <p style="margin-top:.3rem">Labs for this track are under development and will be available in a future release.</p>
+    </div>
+
+  </div>
+</div><!-- end tab-api -->
+
+<!-- ── CONTAINER & K8s TAB ── -->
+<div class="tab-section" id="tab-containers">
+  <div class="page-wrap">
+
+    <div class="info-card" style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <h2 style="font-size:1.1rem;margin-bottom:.5rem">🐳 Container &amp; Kubernetes Security</h2>
+        <p>Containers and orchestration platforms introduce a unique attack surface. Misconfigurations, overpermissioned workloads and insecure defaults can lead to container escapes, cluster takeover and data exfiltration.</p>
+        <p>This track covers the most critical vulnerabilities found in real Docker and Kubernetes environments.</p>
+      </div>
+      <div style="text-align:center;padding:.75rem 1.2rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;flex-shrink:0">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--yellow)">10</div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Categories</div>
+        <div style="margin-top:.6rem;padding:.25rem .7rem;background:rgba(139,148,158,.1);border:1px solid var(--border);border-radius:20px;font-size:.72rem;color:var(--muted);font-weight:600">Labs coming soon</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem">
+
+      <!-- CK1 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK01</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Exposed Docker Socket</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Mounting <code style="font-size:.78rem;background:var(--surface2);padding:.1rem .3rem;border-radius:3px">/var/run/docker.sock</code> inside a container grants full control over the Docker daemon, enabling container escape and host compromise.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Container Escape</span><span class="tag tag-muted">Docker Socket</span><span class="tag tag-muted">Privilege Escalation</span>
+        </div>
+      </div>
+
+      <!-- CK2 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK02</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Privileged Container Escape</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Containers running with <code style="font-size:.78rem;background:var(--surface2);padding:.1rem .3rem;border-radius:3px">--privileged</code> flag or with dangerous Linux capabilities (SYS_ADMIN, SYS_PTRACE) can mount the host filesystem and escape to the underlying node.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">--privileged</span><span class="tag tag-muted">Linux Capabilities</span><span class="tag tag-muted">Host Mount</span>
+        </div>
+      </div>
+
+      <!-- CK3 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK03</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Secrets in Images &amp; Environment Variables</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Hardcoded credentials in Dockerfiles, image layers or environment variables are extractable via <code style="font-size:.78rem;background:var(--surface2);padding:.1rem .3rem;border-radius:3px">docker inspect</code> or image layer analysis, even after deletion.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Secrets</span><span class="tag tag-muted">Image Layers</span><span class="tag tag-muted">ENV vars</span>
+        </div>
+      </div>
+
+      <!-- CK4 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK04</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Vulnerable &amp; Outdated Base Images</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Using outdated or unpatched base images introduces known CVEs into every container derived from them. Without image scanning in the CI/CD pipeline, vulnerable images reach production undetected.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Base Images</span><span class="tag tag-muted">CVE Scanning</span><span class="tag tag-muted">Supply Chain</span>
+        </div>
+      </div>
+
+      <!-- CK5 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK05</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Kubernetes RBAC Misconfiguration</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Overpermissioned service accounts, wildcard permissions and cluster-admin bindings allow lateral movement and privilege escalation within a Kubernetes cluster from a compromised pod.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">RBAC</span><span class="tag tag-muted">Service Accounts</span><span class="tag tag-muted">cluster-admin</span>
+        </div>
+      </div>
+
+      <!-- CK6 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK06</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Exposed Kubernetes Dashboard</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">The Kubernetes Dashboard exposed without authentication or with overpermissioned service accounts allows unauthenticated attackers to deploy workloads, read secrets and take over the cluster.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">K8s Dashboard</span><span class="tag tag-muted">No Auth</span><span class="tag tag-muted">Cluster Takeover</span>
+        </div>
+      </div>
+
+      <!-- CK7 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK07</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Kubernetes API Server Exposure</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">An unauthenticated or anonymously accessible Kubernetes API server allows an attacker to list and modify all cluster resources. Combined with RBAC flaws, this provides full cluster control.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">API Server</span><span class="tag tag-muted">Anonymous Auth</span><span class="tag tag-muted">kubectl</span>
+        </div>
+      </div>
+
+      <!-- CK8 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK08</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Namespace Isolation Failures</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Missing NetworkPolicies allow pods in different namespaces to communicate freely. A compromised pod in a low-privilege namespace can reach sensitive services in other namespaces or the host network.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">NetworkPolicy</span><span class="tag tag-muted">Namespace</span><span class="tag tag-muted">Lateral Movement</span>
+        </div>
+      </div>
+
+      <!-- CK9 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK09</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Container Resource Exhaustion</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Containers without CPU and memory limits can consume all node resources, causing a denial of service to co-located workloads. A fork bomb or memory leak in one container can take down the entire node.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Resource Limits</span><span class="tag tag-muted">DoS</span><span class="tag tag-muted">Fork Bomb</span>
+        </div>
+      </div>
+
+      <!-- CK10 -->
+      <div class="info-card" style="margin-bottom:0">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.6rem">
+          <div>
+            <div style="font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">CK10</div>
+            <div style="font-size:.96rem;font-weight:700;margin-top:.1rem">Image Registry Attacks &amp; Unsigned Images</div>
+          </div>
+          <span class="badge badge-stopped" style="flex-shrink:0;font-size:.62rem">OFFLINE</span>
+        </div>
+        <p style="font-size:.82rem;color:var(--muted);line-height:1.55;margin:0">Pulling images from untrusted or compromised registries without signature verification allows supply chain attacks. Attackers can replace legitimate images with malicious ones that execute code on container startup.</p>
+        <div style="margin-top:.7rem;display:flex;gap:.4rem;flex-wrap:wrap">
+          <span class="tag tag-muted">Image Signing</span><span class="tag tag-muted">Registry</span><span class="tag tag-muted">Supply Chain</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="info-card" style="margin-top:1.2rem;text-align:center;color:var(--muted);font-size:.82rem">
+      <p>References: CIS Docker Benchmark · CIS Kubernetes Benchmark · OWASP Docker Top 10 · NSA/CISA Kubernetes Hardening Guide</p>
+      <p style="margin-top:.3rem">Labs for this track are under development and will be available in a future release.</p>
+    </div>
+
+  </div>
+</div><!-- end tab-containers -->
+
+<!-- ── ABOUT TAB ── -->
+<div class="tab-section" id="tab-about">
+  <div class="page-wrap">
+
+    <div class="info-card" style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap">
+      <img src="https://github.com/Snifer/DinoSecL4b/blob/main/Dino.png?raw=true"
+           style="width:90px;border-radius:12px;border:1px solid var(--border)" alt="DinosecLabs">
+      <div>
+        <div style="font-size:1.3rem;font-weight:700;margin-bottom:.3rem">🦕 DinosecLabs</div>
+        <div style="color:var(--muted);font-size:.88rem;line-height:1.7;max-width:580px">
+          An ethical hacking lab based on the <strong style="color:var(--text)">OWASP Top 10 2025</strong>.
+          Ten realistic vulnerable applications, each running in an isolated Docker container,
+          with a gamified dashboard featuring flags, Dinocoins and progressive hints.
+          No labels, no hints in the UI — just real apps to attack.
+        </div>
+        <div style="margin-top:.75rem">
+          <span class="tag tag-muted">OWASP Top 10 2025</span>
+          <span class="tag tag-muted">Docker</span>
+          <span class="tag tag-muted">Python Flask</span>
+          <span class="tag tag-muted">CTF-style</span>
+          <span class="tag tag-muted">Ethical Hacking</span>
+          <span class="tag tag-muted">Offline ready</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="info-card">
+        <h2>👤 Developer</h2>
+        <div class="dev-row">
+          <img src="https://github.com/Snifer.png" class="avatar" alt="Snifer">
+          <div>
+            <div style="font-weight:700;font-size:.95rem">Snifer</div>
+            <div style="color:var(--muted);font-size:.82rem;margin:.2rem 0">Security Researcher · Ethical Hacker</div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.4rem">
+              <a href="https://github.com/Snifer" target="_blank"
+                 style="color:var(--blue);font-size:.78rem;text-decoration:none">⬡ GitHub</a>
+              <a href="https://sniferl4bs.com" target="_blank"
+                 style="color:var(--blue);font-size:.78rem;text-decoration:none">🌐 sniferl4bs.com</a>
+              <a href="https://ko-fi.com/sniferl4bs" target="_blank"
+                 style="color:var(--yellow);font-size:.78rem;text-decoration:none">☕ Ko-fi</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h2>📦 Repository</h2>
+        <p>Source code, issues and contributions:</p>
+        <a href="https://github.com/Snifer/DinoSecL4b" target="_blank"
+           style="display:flex;align-items:center;gap:.5rem;background:var(--surface2);border:1px solid var(--border);
+                  border-radius:6px;padding:.6rem .9rem;text-decoration:none;margin:.5rem 0">
+          <span style="font-size:1.1rem">⬡</span>
+          <span style="color:var(--blue);font-size:.88rem;font-weight:600">Snifer/DinoSecL4b</span>
+        </a>
+        <p>Found a bug or have an idea? Open an issue on GitHub.</p>
+        <p>Contributions are welcome — PRs, new labs, writeups.</p>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h2>🎮 How it works</h2>
+      <div class="two-col">
+        <div>
+          <h3>🧪 Labs</h3>
+          <p>Each lab is a standalone Docker container running a realistic corporate application —
+             no vulnerability labels, no hints in the UI. Start a lab from the dashboard, attack it as a real pentester.</p>
+          <h3>🚩 Flags</h3>
+          <p>Hidden inside the app data. Only accessible by successfully exploiting the vulnerability.
+             Format: <code style="color:var(--yellow);background:var(--surface2);padding:.1rem .3rem;border-radius:3px">FLAG{...}</code></p>
+        </div>
+        <div>
+          <h3>🪙 Dinocoins &amp; Hints</h3>
+          <p>Each flag submitted awards Dinocoins (100–200 🪙). Dinocoins unlock hints — three progressive levels per lab.
+             Completing a lab automatically unlocks the first hint of the next one.</p>
+          <h3>🏆 Hall of Fame</h3>
+          <p>Submit your score via a pre-filled GitHub Issue. A GitHub Action processes it automatically
+             and updates the public leaderboard.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h2>📊 Lab Summary</h2>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:.83rem">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="padding:.5rem .7rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:left">ID</th>
+              <th style="padding:.5rem .7rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:left">Category</th>
+              <th style="padding:.5rem .7rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:left">Application</th>
+              <th style="padding:.5rem .7rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:center">Flags</th>
+              <th style="padding:.5rem .7rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:center">Port</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lab in labs %}
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:.45rem .7rem"><span style="font-size:.75rem;color:var(--muted)">{{ lab.title }}</span></td>
+              <td style="padding:.45rem .7rem"><span style="font-size:.88rem">{{ lab.icon }}</span> <strong>{{ lab.name }}</strong></td>
+              <td style="padding:.45rem .7rem;color:var(--muted)">{{ lab.description[:60] }}…</td>
+              <td style="padding:.45rem .7rem;text-align:center">
+                <span style="color:{% if lab.flags_found == lab.flags_total %}var(--green){% elif lab.flags_found > 0 %}var(--yellow){% else %}var(--muted){% endif %}">
+                  {{ lab.flags_found }}/{{ lab.flags_total }}
+                </span>
+              </td>
+              <td style="padding:.45rem .7rem;text-align:center;color:var(--muted);font-family:monospace;font-size:.82rem">{{ lab.port }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="info-card" style="text-align:center;color:var(--muted);font-size:.82rem">
+      <p>DinosecLabs · MIT License · For educational use only</p>
+      <p style="margin-top:.3rem">Do not deploy in production environments. Use responsibly.</p>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:1.5rem 0">
+    <div style="font-size:1rem;font-weight:700;margin-bottom:1.2rem">🗺️ Roadmap</div>
+
+
+    <div class="info-card">
+      <h2>🗺️ Roadmap — Upcoming Labs &amp; Features</h2>
+      <p>DinosecLabs is actively developed. Below is what's planned for future releases.</p>
+    </div>
+
+    <div class="two-col">
+
+      <!-- New labs -->
+      <div class="info-card">
+        <h2>🧪 New Vulnerability Labs</h2>
+
+        <div class="road-item">
+          <div class="road-icon">🔗</div>
+          <div>
+            <div class="road-title">Server-Side Request Forgery (SSRF)
+              <span class="status-pill pill-soon" style="margin-left:.5rem">SOON</span>
+            </div>
+            <div class="road-desc">Application fetches remote URLs based on user input without validation. Allows reaching internal services.</div>
+            <div style="margin-top:.4rem"><span class="tag tag-muted">HIGH</span><span class="tag tag-muted">OWASP 2021</span></div>
+          </div>
+        </div>
+
+        <div class="road-item">
+          <div class="road-icon">📄</div>
+          <div>
+            <div class="road-title">XML External Entity (XXE)
+              <span class="status-pill pill-soon" style="margin-left:.5rem">SOON</span>
+            </div>
+            <div class="road-desc">XML parser processes external entity references, allowing file read and SSRF via XML documents.</div>
+            <div style="margin-top:.4rem"><span class="tag tag-muted">HIGH</span><span class="tag tag-muted">XML / SOAP</span></div>
+          </div>
+        </div>
+
+        <div class="road-item">
+          <div class="road-icon">🔌</div>
+          <div>
+            <div class="road-title">API Security Failures
+              <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+            </div>
+            <div class="road-desc">REST API with broken object-level authorization, mass assignment, excessive data exposure and missing rate limits.</div>
+            <div style="margin-top:.4rem"><span class="tag tag-muted">HIGH</span><span class="tag tag-muted">REST API</span><span class="tag tag-muted">OWASP API Top 10</span></div>
+          </div>
+        </div>
+
+        <div class="road-item">
+          <div class="road-icon">🖥️</div>
+          <div>
+            <div class="road-title">Server-Side Template Injection v2
+              <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+            </div>
+            <div class="road-desc">Expanded SSTI lab covering multiple template engines: Jinja2, Twig, Freemarker with different exploitation paths.</div>
+            <div style="margin-top:.4rem"><span class="tag tag-muted">CRITICAL</span><span class="tag tag-muted">RCE</span></div>
+          </div>
+        </div>
+
+        <div class="road-item">
+          <div class="road-icon">🗄️</div>
+          <div>
+            <div class="road-title">NoSQL Injection
+              <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+            </div>
+            <div class="road-desc">MongoDB query injection through operator abuse ($where, $gt) in a Node.js/Express application.</div>
+            <div style="margin-top:.4rem"><span class="tag tag-muted">HIGH</span><span class="tag tag-muted">MongoDB</span><span class="tag tag-muted">Node.js</span></div>
+          </div>
+        </div>
+
+        <div class="road-item">
+          <div class="road-icon">🔄</div>
+          <div>
+            <div class="road-title">Insecure Direct Object Reference v2
+              <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+            </div>
+            <div class="road-desc">Extended IDOR lab with JWT-based auth, GraphQL endpoints and object-level access control failures.</div>
+            <div style="margin-top:.4rem"><span class="tag tag-muted">MEDIUM</span><span class="tag tag-muted">GraphQL</span></div>
+          </div>
+        </div>
+
+        <div class="road-item">
+          <div class="road-icon">📡</div>
+          <div>
+            <div class="road-title">WebSocket Security
+              <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+            </div>
+            <div class="road-desc">Real-time chat application with missing origin checks, message injection and privilege escalation via WebSocket.</div>
+            <div style="margin-top:.4rem"><span class="tag tag-muted">MEDIUM</span><span class="tag tag-muted">WebSocket</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Platform vision & features -->
+      <div>
+
+        <!-- Vision -->
+        <div class="info-card" style="border-color:rgba(88,166,255,.3)">
+          <h2 style="color:var(--blue)">🚀 Platform Vision</h2>
+          <p>DinosecLabs is designed as an <strong style="color:var(--text)">extensible security training platform</strong>,
+             not just a one-off lab set. The OWASP Top 10 2025 is only the first module.
+             The architecture supports independent, plug-and-play training tracks that can be added,
+             updated or removed without changing the core platform.</p>
+          <div style="margin-top:.8rem;padding:.75rem;background:var(--surface2);border-radius:6px;
+                      border-left:3px solid var(--blue);font-size:.82rem;color:var(--muted);line-height:1.7">
+            Each <strong style="color:var(--text)">Track</strong> is a self-contained collection of Docker labs
+            sharing a theme — a vulnerability class, a technology stack, a certification path or a specific attack scenario.
+            Tracks live independently in the repo and are loaded dynamically by the dashboard.
+          </div>
+        </div>
+
+        <!-- Training tracks -->
+        <div class="info-card">
+          <h2>📚 Upcoming Training Tracks</h2>
+
+          <div class="road-item">
+            <div class="road-icon">🔌</div>
+            <div>
+              <div class="road-title">OWASP API Security Top 10
+                <span class="status-pill pill-soon" style="margin-left:.5rem">SOON</span>
+              </div>
+              <div class="road-desc">10 labs targeting REST/GraphQL APIs: broken object-level auth, mass assignment, excessive data exposure, unrestricted resource consumption, security misconfiguration.</div>
+              <div style="margin-top:.4rem">
+                <span class="tag tag-muted">REST API</span>
+                <span class="tag tag-muted">GraphQL</span>
+                <span class="tag tag-muted">10 labs</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">☁️</div>
+            <div>
+              <div class="road-title">Cloud Security Fundamentals
+                <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+              </div>
+              <div class="road-desc">Misconfigured S3 buckets, exposed metadata endpoints, overpermissioned IAM roles, insecure Lambda functions and container registry leaks. Simulated cloud environment, no real cloud account needed.</div>
+              <div style="margin-top:.4rem">
+                <span class="tag tag-muted">ADVANCED</span>
+                <span class="tag tag-muted">AWS-like</span>
+                <span class="tag tag-muted">GCP-like</span>
+                <span class="tag tag-muted">8 labs</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">🏢</div>
+            <div>
+              <div class="road-title">Active Directory Attacks
+                <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+              </div>
+              <div class="road-desc">Domain enumeration, Kerberoasting, AS-REP roasting, Pass-the-Hash, Golden Ticket, ACL abuse and privilege escalation inside a containerised Windows-like AD environment.</div>
+              <div style="margin-top:.4rem">
+                <span class="tag tag-muted">ADVANCED</span>
+                <span class="tag tag-muted">Active Directory</span>
+                <span class="tag tag-muted">Kerberos</span>
+                <span class="tag tag-muted">8 labs</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">🐳</div>
+            <div>
+              <div class="road-title">Container &amp; Kubernetes Security
+                <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+              </div>
+              <div class="road-desc">Docker socket exposure, privileged container escapes, Kubernetes RBAC misconfigurations, secrets in env vars, exposed dashboards and supply chain attacks targeting images.</div>
+              <div style="margin-top:.4rem">
+                <span class="tag tag-muted">ADVANCED</span>
+                <span class="tag tag-muted">Docker</span>
+                <span class="tag tag-muted">Kubernetes</span>
+                <span class="tag tag-muted">6 labs</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">📱</div>
+            <div>
+              <div class="road-title">Mobile Security (Android)
+                <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+              </div>
+              <div class="road-desc">Insecure data storage, exported activities, weak cryptography, insecure communication and improper session handling in Android APKs analysable with static and dynamic tools.</div>
+              <div style="margin-top:.4rem">
+                <span class="tag tag-muted">ADVANCED</span>
+                <span class="tag tag-muted">Android</span>
+                <span class="tag tag-muted">APK</span>
+                <span class="tag tag-muted">6 labs</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">🔐</div>
+            <div>
+              <div class="road-title">Applied Cryptography Challenges
+                <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+              </div>
+              <div class="road-desc">Hands-on cryptographic attacks: CBC padding oracle, ECB block manipulation, RSA small exponent, hash length extension and JWT algorithm confusion.</div>
+              <div style="margin-top:.4rem">
+                <span class="tag tag-muted">MEDIUM</span>
+                <span class="tag tag-muted">Crypto</span>
+                <span class="tag tag-muted">CTF-style</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">🎓</div>
+            <div>
+              <div class="road-title">Certification Prep Tracks
+                <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+              </div>
+              <div class="road-desc">Curated lab bundles aligned to eJPT, OSCP, CEH and BSCP objectives. Each bundle maps labs to specific exam domains.</div>
+              <div style="margin-top:.4rem">
+                <span class="tag tag-muted">eJPT</span>
+                <span class="tag tag-muted">OSCP</span>
+                <span class="tag tag-muted">CEH</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Platform features -->
+        <div class="info-card">
+          <h2>⚙️ Platform Features</h2>
+
+          <div class="road-item">
+            <div class="road-icon">🗂️</div>
+            <div>
+              <div class="road-title">Multi-Track Architecture
+                <span class="status-pill pill-soon" style="margin-left:.5rem">SOON</span>
+              </div>
+              <div class="road-desc">Dashboard supports multiple independent tracks loaded from a <code>tracks/</code> directory. Switch between OWASP, API, Cloud and more from a single interface without rebuilding the platform.</div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">📈</div>
+            <div>
+              <div class="road-title">Difficulty Levels per Lab
+                <span class="status-pill pill-soon" style="margin-left:.5rem">SOON</span>
+              </div>
+              <div class="road-desc">Easy / Medium / Hard variants. Higher difficulty = fewer hints available, higher coin rewards and harder-to-reach flags.</div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">🛤️</div>
+            <div>
+              <div class="road-title">Learning Paths
+                <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+              </div>
+              <div class="road-desc">Guided sequences of labs across tracks — e.g. "Web Security Fundamentals" (A01→A05→API01) or "Privilege Escalation Path" (A01→AD01→Cloud01). Progress is tracked per path.</div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">🏅</div>
+            <div>
+              <div class="road-title">Achievements &amp; Badges
+                <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+              </div>
+              <div class="road-desc">Unlock badges for milestones: first RCE, all OWASP flags, speed runs, completing a full track. Badges appear in the Hall of Fame profile.</div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">📝</div>
+            <div>
+              <div class="road-title">In-Dashboard Notes
+                <span class="status-pill pill-planned" style="margin-left:.5rem">PLANNED</span>
+              </div>
+              <div class="road-desc">Per-lab notepad to document findings, save payloads and draft mini-reports. Exportable as Markdown.</div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">👥</div>
+            <div>
+              <div class="road-title">Classroom / Team Mode
+                <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+              </div>
+              <div class="road-desc">Instructor creates a shared session. Students connect to the same dashboard instance, each with their own progress. Instructor can monitor who completed what in real time.</div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">⏱️</div>
+            <div>
+              <div class="road-title">Timed CTF Mode
+                <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+              </div>
+              <div class="road-desc">All labs start simultaneously with a countdown timer. Score = flags × Dinocoins / time. Live leaderboard during the event.</div>
+            </div>
+          </div>
+
+          <div class="road-item">
+            <div class="road-icon">🌐</div>
+            <div>
+              <div class="road-title">Multi-language UI
+                <span class="status-pill pill-idea" style="margin-left:.5rem">IDEA</span>
+              </div>
+              <div class="road-desc">Dashboard and hint texts available in English and Spanish. Community translations welcome.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Contribute -->
+        <div class="info-card">
+          <h2>🤝 Build a Track</h2>
+          <p>Anyone can contribute a new training track. The structure is simple:</p>
+          <div style="background:var(--surface2);border-radius:6px;padding:.8rem 1rem;margin:.7rem 0;
+                      font-family:monospace;font-size:.78rem;color:var(--muted);line-height:1.8">
+            tracks/<br>
+            &nbsp;&nbsp;└── my-track/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── track.json &nbsp;&nbsp;&nbsp;<span style="color:#484f58"># name, description, labs list</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── labs/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── lab-01/ &nbsp;&nbsp;&nbsp;<span style="color:#484f58"># Dockerfile + app</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── flags.json &nbsp;&nbsp;<span style="color:#484f58"># flag registry + hints</span>
+          </div>
+          <ul style="margin-bottom:.9rem">
+            <li>Open an issue with label <strong>new-track</strong> to propose a track</li>
+            <li>Fork the repo, build your labs, submit a PR</li>
+            <li>Share writeups and educational content in the Wiki</li>
+          </ul>
+          <a href="https://github.com/Snifer/DinoSecL4b/issues/new" target="_blank"
+             class="btn btn-open" style="display:inline-flex;font-size:.82rem;text-decoration:none">
+            ✚ Propose a new track
+          </a>
+        </div>
+
+        <!-- Release history -->
+        <div class="info-card">
+          <h2>📅 Release History</h2>
+          <div style="font-size:.82rem;line-height:2.2">
+            <div><span style="color:var(--green);font-weight:700">v1.0</span> <span style="color:var(--muted)">— OWASP Top 10 2025 · 10 labs · Dashboard · Gamification · 21 flags</span></div>
+            <div><span style="color:var(--blue);font-weight:700">v1.1</span> <span style="color:var(--muted)">— Hall of Fame · English UI · Hints system · Roadmap &amp; About tabs</span></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div><!-- end tab-about -->
+
+<footer>DinosecLabs 2026 — Auto-refresh 15s</footer>
+
+<!-- Build Modal -->
+<div class="overlay" id="buildOverlay">
+  <div class="modal modal-sm">
+    <div class="build-modal-body">
+      <div class="build-icon">⚙️</div>
+      <div class="build-title" id="buildTitle">Building image…</div>
+      <div class="build-sub">First build may take ~30s. Do not close this window.</div>
+      <div class="build-bar-wrap"><div class="build-bar" id="buildBar"></div></div>
+      <div style="font-size:.72rem;color:var(--muted)">Status will update automatically when done</div>
+    </div>
+  </div>
+</div>
+
+<!-- Flag Submit Modal -->
+<div class="overlay" id="flagOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 id="flagModalTitle">🚩 Submit Flag</h3>
+      <button class="modal-close" onclick="closeModal('flagOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem">
+        Paste the flag you found in the lab. Format: <code style="color:var(--yellow)">FLAG{...}</code>
+      </p>
+      <div class="flag-input-wrap">
+        <input type="text" id="flagInput" placeholder="FLAG{A01_...}" autocomplete="off" spellcheck="false"/>
+        <button class="btn btn-flag" onclick="submitFlag()">Submit</button>
+      </div>
+      <div id="flagResult" class="flag-result"></div>
+      <div style="margin-top:1rem;font-size:.75rem;color:var(--muted)">
+        Each valid flag awards Dinocoins used to unlock hints.
+        Completing a lab automatically unlocks the first hint of the next one.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hints Modal -->
+<div class="overlay" id="hintsOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="hintsModalTitle">💡 Hints</h3>
+      <button class="modal-close" onclick="closeModal('hintsOverlay')">✕</button>
+    </div>
+    <div class="modal-body" id="hintsBody"></div>
+  </div>
+</div>
+
+<!-- Logs Modal -->
+<div class="overlay" id="logsOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="logsModalTitle">📄 Logs</h3>
+      <button class="modal-close" onclick="closeModal('logsOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <pre class="log-output" id="logsContent">Loading…</pre>
+    </div>
+  </div>
+</div>
+
+<!-- Hall of Fame — Submit Modal -->
+<div class="overlay" id="hofSubmitOverlay">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>🏆 Submit to Hall of Fame</h3>
+      <button class="modal-close" onclick="closeModal('hofSubmitOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="hofScoreSummary" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.9rem;margin-bottom:1rem;font-size:.85rem;line-height:2"></div>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">
+        Enter your alias to appear on the public leaderboard.<br>
+        Clicking <strong>Submit</strong> will open a pre-filled GitHub Issue — just click <em>"Submit new issue"</em> there.
+      </p>
+      <div class="flag-input-wrap" style="margin-bottom:.5rem">
+        <input type="text" id="hofAlias" placeholder="Your alias / nickname" maxlength="40" autocomplete="off"/>
+        <button class="btn btn-flag" onclick="generateHofIssue()">Submit</button>
+      </div>
+      <div id="hofError" style="display:none;color:var(--red);font-size:.8rem;margin-top:.3rem"></div>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:.8rem">
+        Scores are self-reported. The GitHub Action verifies the format and updates the leaderboard automatically.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Hall of Fame — Leaderboard Modal -->
+<div class="overlay" id="hofBoardOverlay">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3>🏆 Hall of Fame — DinosecLabs</h3>
+      <button class="modal-close" onclick="closeModal('hofBoardOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="btn btn-flag" style="font-size:.78rem" onclick="generateHofIssue()">🚀 Submit my score</button>
+        <button class="btn btn-logs" style="font-size:.78rem" onclick="loadLeaderboard()">🔄 Refresh</button>
+        <a class="btn btn-open" style="font-size:.78rem"
+           href="https://github.com/Snifer/DinoSecL4b/blob/main/owasp-labs/HALL_OF_FAME.md"
+           target="_blank">📄 View on GitHub</a>
+      </div>
+      <div id="hofTable">
+        <p style="color:var(--muted);font-size:.85rem;text-align:center;padding:2rem">Loading leaderboard…</p>
+      </div>
+      <p style="font-size:.72rem;color:var(--muted);margin-top:1rem;text-align:center">
+        Max: 3000 🪙 · 21 flags · 10 labs &nbsp;·&nbsp;
+        <a href="https://github.com/Snifer/DinoSecL4b" target="_blank" style="color:var(--muted)">github.com/Snifer/DinoSecL4b</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="overlay" id="progressOverlay">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3>📊 Detailed Progress</h3>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="btn btn-logs" style="font-size:.75rem;padding:.3rem .75rem" onclick="exportProgress()">⬇ CSV</button>
+        <button class="modal-close" onclick="closeModal('progressOverlay')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div id="progressSummary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1rem"></div>
+      <div id="progressTable"><p style="color:var(--muted);text-align:center">Loading…</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- Notes Modal -->
+<div class="overlay" id="notesOverlay">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-header">
+      <h3 id="notesModalTitle">📝 Notes</h3>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="btn btn-flag" style="font-size:.75rem;padding:.3rem .75rem" onclick="saveNotes()">💾 Save</button>
+        <button class="modal-close" onclick="closeModal('notesOverlay')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:.6rem">
+        Write your findings, payloads, commands and observations for this lab.
+        Notes are saved locally and persist between sessions.
+      </p>
+      <textarea class="notes-textarea" id="notesContent"
+        placeholder="# Lab Notes&#10;&#10;## Recon&#10;&#10;## Exploitation&#10;&#10;## Flags Found&#10;&#10;## Payloads&#10;"></textarea>
+      <div class="notes-meta" id="notesMeta"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── Tab switching ────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  // Pause auto-refresh stats bar when not on labs tab
+  if(name === 'labs') refreshStatus();
+}
+
+// ─── State ────────────────────────────────────────────────
+let currentFlagLab = null;
+let currentHintsLab = null;
+let buildTimer = null;
+
+// ─── Toast ────────────────────────────────────────────────
+function toast(msg, type='ok', dur=3500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = ''; }, dur);
+}
+
+// ─── Modal helpers ────────────────────────────────────────
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('active'); });
+});
+
+// ─── Status badges / buttons ─────────────────────────────
+const STATUS_CLS = { running:'badge-running', stopped:'badge-stopped', exited:'badge-stopped', unknown:'badge-unknown' };
+function setBadge(id, status) {
+  const b = document.getElementById(`badge-${id}`);
+  if (!b) return;
+  b.className = 'badge ' + (STATUS_CLS[status] || 'badge-unknown');
+  b.textContent = status === 'exited' ? 'stopped' : status;
+}
+function setButtons(id, running) {
+  const s = document.getElementById(`btn-start-${id}`);
+  const x = document.getElementById(`btn-stop-${id}`);
+  const o = document.getElementById(`btn-open-${id}`);
+  if(s) s.disabled = running;
+  if(x) x.disabled = !running;
+  if(o) { o.style.pointerEvents = running ? 'auto' : 'none'; o.style.opacity = running ? '1' : '0.4'; }
+}
+
+// ─── Build progress overlay ──────────────────────────────
+function startBuild(name) {
+  document.getElementById('buildTitle').textContent = `Building ${name}…`;
+  const bar = document.getElementById('buildBar');
+  bar.style.background = 'var(--blue)';
+  bar.style.width = '0%';
+  document.getElementById('buildOverlay').classList.add('active');
+  let p = 0;
+  buildTimer = setInterval(() => {
+    p = Math.min(p + (p < 55 ? 4 : p < 80 ? 1.5 : .4), 94);
+    bar.style.width = p + '%';
+  }, 700);
+}
+function stopBuild(ok) {
+  clearInterval(buildTimer);
+  const bar = document.getElementById('buildBar');
+  bar.style.width = '100%';
+  bar.style.background = ok ? 'var(--green)' : 'var(--red)';
+  setTimeout(() => document.getElementById('buildOverlay').classList.remove('active'), 700);
+}
+
+// ─── Start / Stop ────────────────────────────────────────
+async function startLab(id) {
+  const btn = document.getElementById(`btn-start-${id}`);
+  const name = document.querySelector(`#card-${id} .card-name`).textContent;
+  btn.disabled = true;
+  btn.textContent = '⚙️ Build…';
+  startBuild(name);
+  try {
+    const r = await fetch(`/api/start/${id}`, { method:'POST' });
+    const d = await r.json();
+    stopBuild(d.ok);
+    if(d.ok) {
+      toast(`Lab ${id.toUpperCase()} started ✓`);
+      setTimeout(refreshStatus, 2500);
+    } else {
+      document.getElementById('logsModalTitle').textContent = '❌ Failed to start';
+      document.getElementById('logsContent').textContent = d.error || 'Unknown error';
+      document.getElementById('logsContent').style.color = 'var(--red)';
+      document.getElementById('logsOverlay').classList.add('active');
+      btn.disabled = false;
+      btn.textContent = '▶ Start';
+    }
+  } catch(e) {
+    stopBuild(false);
+    toast('Network error', 'err');
+    btn.disabled = false;
+    btn.textContent = '▶ Start';
+  }
+}
+async function stopLab(id) {
+  const btn = document.getElementById(`btn-stop-${id}`);
+  btn.disabled = true;
+  btn.textContent = '⏳…';
+  try {
+    const r = await fetch(`/api/stop/${id}`, { method:'POST' });
+    const d = await r.json();
+    if(d.ok) {
+      toast(`Lab ${id.toUpperCase()} stopped`);
+      setBadge(id, 'stopped');
+      setButtons(id, false);
+    } else {
+      toast(`Error: ${d.error}`, 'err');
+      btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Network error','err');
+    btn.disabled = false;
+  }
+  btn.textContent = '⏹ Stop';
+}
+
+// ─── Status refresh ──────────────────────────────────────
+async function refreshStatus() {
+  try {
+    const d = await (await fetch('/api/status')).json();
+    let running = 0;
+    for(const [id, st] of Object.entries(d)) {
+      setBadge(id, st);
+      setButtons(id, st === 'running');
+      if(st === 'running') running++;
+    }
+    document.getElementById('stat-run').textContent = running;
+    document.getElementById('stat-run').className = 'stat-val ' + (running > 0 ? 'green' : 'red');
+  } catch(e) {}
+}
+
+// ─── Flag submission ─────────────────────────────────────
+function openFlagModal(labId, name) {
+  currentFlagLab = labId;
+  document.getElementById('flagModalTitle').textContent = `🚩 Submit Flag — ${name}`;
+  document.getElementById('flagInput').value = '';
+  const r = document.getElementById('flagResult');
+  r.style.display = 'none';
+  document.getElementById('flagOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('flagInput').focus(), 100);
+}
+document.getElementById('flagInput').addEventListener('keydown', e => { if(e.key==='Enter') submitFlag(); });
+
+async function submitFlag() {
+  const input = document.getElementById('flagInput');
+  const flag = input.value.trim();
+  const result = document.getElementById('flagResult');
+  if(!flag) return;
+  try {
+    const r = await fetch('/api/submit-flag', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({flag, lab: currentFlagLab})
+    });
+    const d = await r.json();
+    result.style.display = 'block';
+    if(d.ok) {
+      result.className = 'flag-result ok';
+      result.textContent = `✓ Valid flag: ${d.flag_name} · +${d.coins_earned} Dinocoins (total: ${d.total_coins} 🪙)`;
+      document.getElementById('coin-count').textContent = d.total_coins;
+      input.value = '';
+      refreshFlagProgress();
+      toast(`+${d.coins_earned} Dinocoins for "${d.flag_name}" 🪙`);
+    } else if(d.already) {
+      result.className = 'flag-result dup';
+      result.textContent = `⚠ ${d.error}`;
+    } else {
+      result.className = 'flag-result err';
+      result.textContent = `✗ ${d.error}`;
+    }
+  } catch(e) {
+    result.style.display='block';
+    result.className='flag-result err';
+    result.textContent='Network error';
+  }
+}
+
+// ─── Flag progress pips ──────────────────────────────────
+async function refreshFlagProgress() {
+  try {
+    const d = await (await fetch('/api/progress')).json();
+    document.getElementById('coin-count').textContent = d.coins;
+    const submittedIds = new Set(d.flags_submitted.map(f => f.flag_id));
+    // rebuild pips per lab — quick approach: reload
+    const total_flags = {{ total_flags }};
+    const found = d.flags_submitted.length;
+    document.getElementById('stat-flags').textContent = `${found}/${total_flags}`;
+    const pct = total_flags ? Math.round(found/total_flags*100) : 0;
+    document.getElementById('global-progress').style.width = pct+'%';
+    document.getElementById('progress-pct').textContent = pct+'%';
+  } catch(e){}
+}
+
+// ─── Hints modal ─────────────────────────────────────────
+function openHintsModal(btn) {
+  const labId    = btn.dataset.labId;
+  const name     = btn.dataset.labName;
+  const hintsData = JSON.parse(btn.dataset.hints || '[]');
+  currentHintsLab = labId;
+  document.getElementById('hintsModalTitle').textContent = `💡 Hints — ${name}`;
+  renderHints(labId, hintsData);
+  document.getElementById('hintsOverlay').classList.add('active');
+}
+
+function renderHints(labId, hintsData) {
+  const body = document.getElementById('hintsBody');
+  if(!hintsData || hintsData.length === 0) {
+    body.innerHTML = '<p style="color:var(--muted);font-size:.85rem">No hints available for this lab.</p>';
+    return;
+  }
+  body.innerHTML = hintsData.map(h => {
+    const locked = !h.unlocked;
+    return `
+    <div class="hint-item" id="hint-${labId}-${h.level}">
+      <div class="hint-header">
+        <span class="hint-level">Level ${h.level}</span>
+        <span class="hint-cost">${locked ? `🪙 ${h.cost} Dinocoins` : '<span style="color:var(--green)">✓ Unlocked</span>'}</span>
+      </div>
+      <div class="hint-text ${locked ? 'locked' : ''}" id="hint-text-${labId}-${h.level}">
+        ${locked ? 'Purchase this hint to reveal the clue.' : h.text}
+      </div>
+      ${locked ? `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.5rem">
+        <div class="hint-unlock-info">
+          Complete the previous lab to unlock level 1 for free.
+          Other levels require Dinocoins.
+        </div>
+        <button class="btn btn-hints" style="font-size:.75rem;padding:.3rem .7rem"
+                onclick="buyHint('${labId}', ${h.level}, ${h.cost})">
+          🪙 Unlock
+        </button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function buyHint(labId, level, cost) {
+  try {
+    const r = await fetch(`/api/buy-hint/${labId}/${level}`, { method:'POST' });
+    const d = await r.json();
+    if(d.ok) {
+      if(!d.already) {
+        document.getElementById('coin-count').textContent = d.total_coins;
+        toast(`Hint unlocked (−${d.coins_spent} 🪙 Dinocoins)`, 'info');
+      }
+      // Update hint item in the modal
+      const textEl = document.getElementById(`hint-text-${labId}-${level}`);
+      const item   = document.getElementById(`hint-${labId}-${level}`);
+      if(textEl) {
+        textEl.className = 'hint-text';
+        textEl.textContent = d.text;
+      }
+      if(item) {
+        const costEl = item.querySelector('.hint-cost');
+        if(costEl) costEl.innerHTML = '<span style="color:var(--green)">✓ Unlocked</span>';
+        const buyRow = item.querySelector('.hint-unlock-info')?.closest('div[style]');
+        if(buyRow) buyRow.remove();
+      }
+      // Update data-hints on the button so re-opening shows correct state
+      const btn = document.querySelector(`[data-lab-id="${labId}"].btn-hints`);
+      if(btn) {
+        try {
+          const hints = JSON.parse(btn.dataset.hints);
+          const h = hints.find(x => x.level === level);
+          if(h) { h.unlocked = true; }
+          btn.dataset.hints = JSON.stringify(hints);
+        } catch(_) {}
+      }
+    } else {
+      toast(d.error, 'err', 4000);
+    }
+  } catch(e) {
+    toast('Network error', 'err');
+  }
+}
+
+// ─── Logs ────────────────────────────────────────────────
+async function openLogs(id, name) {
+  document.getElementById('logsModalTitle').textContent = `📄 Logs — ${name}`;
+  document.getElementById('logsContent').style.color = '';
+  document.getElementById('logsContent').textContent = 'Loading…';
+  document.getElementById('logsOverlay').classList.add('active');
+  try {
+    const d = await (await fetch(`/api/logs/${id}`)).json();
+    document.getElementById('logsContent').textContent = d.logs || '(no output)';
+  } catch(e) {
+    document.getElementById('logsContent').textContent = 'Failed to fetch logs';
+  }
+}
+
+// ─── Reset ───────────────────────────────────────────────
+async function confirmReset() {
+  if(!confirm('Reset all progress?\nThis will clear all flags, Dinocoins and unlocked hints. Labs will keep running.')) return;
+  const r = await fetch('/api/reset', { method:'POST' });
+  if((await r.json()).ok) { toast('Progress reset', 'info'); location.reload(); }
+}
+
+// ─── Notes ───────────────────────────────────────────────
+let currentNotesLab = null;
+let notesSaveTimer  = null;
+
+async function openNotes(labId, name) {
+  currentNotesLab = labId;
+  document.getElementById('notesModalTitle').textContent = `📝 Notes — ${name}`;
+  document.getElementById('notesContent').value = '';
+  document.getElementById('notesMeta').textContent = '';
+  document.getElementById('notesOverlay').classList.add('active');
+
+  try {
+    const r = await fetch(`/api/notes/${labId}`);
+    const d = await r.json();
+    document.getElementById('notesContent').value = d.content || '';
+    if(d.updated_at) {
+      document.getElementById('notesMeta').textContent = `Last saved: ${d.updated_at.slice(0,16).replace('T',' ')} UTC`;
+    }
+  } catch(_) {}
+
+  setTimeout(() => document.getElementById('notesContent').focus(), 100);
+}
+
+// Auto-save on typing (debounced 2s)
+document.getElementById('notesContent').addEventListener('input', () => {
+  clearTimeout(notesSaveTimer);
+  document.getElementById('notesMeta').textContent = 'Unsaved changes…';
+  notesSaveTimer = setTimeout(saveNotes, 2000);
+});
+
+async function saveNotes() {
+  if(!currentNotesLab) return;
+  const content = document.getElementById('notesContent').value;
+  try {
+    await fetch(`/api/notes/${currentNotesLab}`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ content })
+    });
+    const now = new Date().toISOString().slice(0,16).replace('T',' ');
+    document.getElementById('notesMeta').textContent = `Saved at ${now} UTC`;
+    // Update button indicator
+    const btn = document.getElementById(`btn-notes-${currentNotesLab}`);
+    if(btn) btn.classList.toggle('has-notes', content.trim().length > 0);
+  } catch(_) {
+    document.getElementById('notesMeta').textContent = 'Save failed — check connection';
+  }
+}
+
+// Load note indicators on page ready
+async function loadNotesIndicators() {
+  const labIds = {{ labs|map(attribute='id')|list|tojson }};
+  for(const id of labIds) {
+    try {
+      const r = await fetch(`/api/notes/${id}`);
+      const d = await r.json();
+      const btn = document.getElementById(`btn-notes-${id}`);
+      if(btn && d.content && d.content.trim().length > 0) {
+        btn.classList.add('has-notes');
+      }
+    } catch(_) {}
+  }
+}
+
+// ─── Hall of Fame ─────────────────────────────────────────
+async function openHofModal() {
+  // Fetch current progress to populate summary
+  try {
+    const d = await (await fetch('/api/progress')).json();
+    const coins  = d.coins;
+    const flags  = d.flags_submitted.length;
+    const labs   = d.completed_labs.length;
+    const pct    = Math.round(flags / 21 * 100);
+
+    document.getElementById('hofScoreSummary').innerHTML =
+      `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;text-align:center">
+        <div><div style="font-size:1.5rem;font-weight:700;color:var(--yellow)">${coins}</div><div style="font-size:.72rem;color:var(--muted)">🪙 Dinocoins</div></div>
+        <div><div style="font-size:1.5rem;font-weight:700;color:var(--green)">${flags}/21</div><div style="font-size:.72rem;color:var(--muted)">🚩 Flags</div></div>
+        <div><div style="font-size:1.5rem;font-weight:700;color:var(--blue)">${labs}/10</div><div style="font-size:.72rem;color:var(--muted)">🧪 Labs</div></div>
+      </div>
+      <div style="margin-top:.7rem">
+        <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:var(--yellow);border-radius:3px"></div>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);text-align:right;margin-top:.2rem">${pct}% complete</div>
+      </div>`;
+  } catch(_) {
+    document.getElementById('hofScoreSummary').textContent = 'Could not load current progress.';
+  }
+
+  document.getElementById('hofAlias').value = '';
+  document.getElementById('hofError').style.display = 'none';
+  document.getElementById('hofSubmitOverlay').classList.add('active');
+  setTimeout(() => document.getElementById('hofAlias').focus(), 120);
+}
+
+document.getElementById('hofAlias').addEventListener('keydown', e => {
+  if(e.key === 'Enter') generateHofIssue();
+});
+
+async function generateHofIssue() {
+  const alias = document.getElementById('hofAlias').value.trim();
+  const errEl = document.getElementById('hofError');
+  if(!alias) {
+    errEl.textContent = 'Please enter an alias.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  try {
+    const r = await fetch('/api/score-payload', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ alias })
+    });
+    const d = await r.json();
+    if(!d.ok) {
+      errEl.textContent = d.error || 'Error generating submission.';
+      errEl.style.display = 'block';
+      return;
+    }
+    // Open pre-filled GitHub issue in new tab
+    window.open(d.url, '_blank');
+    closeModal('hofSubmitOverlay');
+    toast(`GitHub Issue opened for ${alias} — click "Submit new issue" to confirm 🚀`, 'info', 6000);
+  } catch(e) {
+    errEl.textContent = 'Network error.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function loadLeaderboard() {
+  const el = document.getElementById('hofTable');
+  el.innerHTML = '<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:1.5rem">Loading…</p>';
+
+  try {
+    const r = await fetch('/api/hall-of-fame');
+    const d = await r.json();
+
+    if(!d.ok || d.scores.length === 0) {
+      el.innerHTML = `
+        <div style="text-align:center;padding:2rem;color:var(--muted)">
+          <div style="font-size:2rem;margin-bottom:.5rem">🦕</div>
+          <p>No scores yet — be the first to submit!</p>
+          ${!d.ok ? `<p style="font-size:.75rem;margin-top:.5rem;color:#484f58">${d.error || ''}</p>` : ''}
+        </div>`;
+      return;
+    }
+
+    const medals = ['🥇','🥈','🥉'];
+    const rows = d.scores.map((s, i) => {
+      const rank   = medals[i] || `#${i+1}`;
+      const filled = Math.round(s.flags / (s.total_flags || 21) * 10);
+      const bar    = '▓'.repeat(filled) + '░'.repeat(10 - filled);
+      const coinPct = Math.round(s.coins / 3000 * 100);
+      return `<tr>
+        <td style="text-align:center;font-size:1.1rem">${rank}</td>
+        <td><strong style="color:var(--text)">${s.alias}</strong></td>
+        <td style="text-align:right;color:var(--yellow);font-weight:700">${s.coins} <span style="font-size:.75rem;color:var(--muted)">/ 3000</span></td>
+        <td style="text-align:center"><code style="font-size:.78rem;color:var(--green)">${s.flags}/${s.total_flags||21}</code><br><span style="font-size:.68rem;color:var(--muted)">${bar}</span></td>
+        <td style="text-align:center;color:var(--blue)">${s.labs}/10</td>
+        <td style="color:var(--muted);font-size:.78rem">${s.date}</td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <th style="padding:.5rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:center">RANK</th>
+            <th style="padding:.5rem;color:var(--muted);font-weight:600;font-size:.72rem">PLAYER</th>
+            <th style="padding:.5rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:right">COINS</th>
+            <th style="padding:.5rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:center">FLAGS</th>
+            <th style="padding:.5rem;color:var(--muted);font-weight:600;font-size:.72rem;text-align:center">LABS</th>
+            <th style="padding:.5rem;color:var(--muted);font-weight:600;font-size:.72rem">DATE</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    el.innerHTML = `<p style="color:var(--red);font-size:.85rem;text-align:center;padding:1.5rem">Failed to load leaderboard. Check your internet connection.</p>`;
+  }
+}
+
+function openHofBoard() {
+  document.getElementById('hofBoardOverlay').classList.add('active');
+  loadLeaderboard();
+}
+
+// ─── Health + Uptime refresh ─────────────────────────────
+async function refreshUptime() {
+  try {
+    const d = await (await fetch('/api/uptime')).json();
+    for(const [id, info] of Object.entries(d)) {
+      const chip = document.getElementById(`uptime-${id}`);
+      const hdot = document.getElementById(`hdot-${id}`);
+      if(chip) {
+        if(info.uptime) {
+          chip.textContent = '⏱ ' + info.uptime;
+          chip.style.display = '';
+        } else {
+          chip.style.display = 'none';
+        }
+      }
+      if(hdot) {
+        hdot.className = 'health-dot ' + (info.healthy ? 'health-ok' : 'health-bad');
+      }
+    }
+  } catch(_) {}
+}
+
+// ─── Reset lab ───────────────────────────────────────────
+async function resetLab(id) {
+  if(!confirm(`Reset lab ${id.toUpperCase()}?\nThis will restart the container and clear its internal state (DB, sessions, logs).`)) return;
+  const btn = document.getElementById(`btn-rl-${id}`);
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  startBuild(`Resetting ${id.toUpperCase()}…`);
+  try {
+    const r = await fetch(`/api/reset-lab/${id}`, { method:'POST' });
+    const d = await r.json();
+    stopBuild(d.ok);
+    if(d.ok) {
+      toast(`Lab ${id.toUpperCase()} reset ✓`);
+      setTimeout(refreshStatus, 2000);
+    } else {
+      toast(`Reset failed: ${d.error}`, 'err', 5000);
+    }
+  } catch(e) {
+    stopBuild(false);
+    toast('Network error', 'err');
+  }
+  btn.disabled = false;
+  btn.textContent = '↺ Reset';
+}
+
+// ─── Search & Filter ─────────────────────────────────────
+let _activeFilter = 'all';
+
+function setFilter(f, btn) {
+  _activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterLabs();
+}
+
+function filterLabs() {
+  const q = document.getElementById('labSearch').value.toLowerCase();
+  document.querySelectorAll('.card[data-name]').forEach(card => {
+    const name     = card.dataset.name || '';
+    const status   = card.dataset.status || '';
+    const done     = card.dataset.completed === 'yes';
+    const matchQ   = !q || name.includes(q);
+    let   matchF   = true;
+    if(_activeFilter === 'running') matchF = status === 'running';
+    if(_activeFilter === 'stopped') matchF = status !== 'running';
+    if(_activeFilter === 'done')    matchF = done;
+    card.style.display = (matchQ && matchF) ? '' : 'none';
+  });
+}
+
+// Keep filter in sync after status refresh
+const _origRefresh = refreshStatus;
+refreshStatus = async function() {
+  await _origRefresh();
+  filterLabs();
+};
+
+// ─── Progress Modal ───────────────────────────────────────
+let _progressData = null;
+
+async function openProgress() {
+  document.getElementById('progressOverlay').classList.add('active');
+  document.getElementById('progressTable').innerHTML = '<p style="color:var(--muted);text-align:center">Loading…</p>';
+  try {
+    const d = await (await fetch('/api/progress/detail')).json();
+    _progressData = d;
+    const pct = d.total_flags ? Math.round(d.found_flags / d.total_flags * 100) : 0;
+    document.getElementById('progressSummary').innerHTML = `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.8rem;text-align:center">
+        <div style="font-size:1.4rem;font-weight:700;color:var(--yellow)">${d.coins}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">🪙 Total Dinocoins</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.8rem;text-align:center">
+        <div style="font-size:1.4rem;font-weight:700;color:var(--green)">${d.found_flags}/${d.total_flags}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">🚩 Flags Found</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.8rem;text-align:center">
+        <div style="font-size:1.4rem;font-weight:700;color:var(--blue)">${pct}%</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">✅ Complete</div>
+      </div>`;
+
+    if(!d.rows.length) {
+      document.getElementById('progressTable').innerHTML =
+        '<p style="color:var(--muted);text-align:center;padding:1.5rem">No flags submitted yet. Start a lab and find one!</p>';
+      return;
+    }
+
+    const rows = d.rows.map((r, i) => `
+      <tr>
+        <td style="color:var(--muted)">#${i+1}</td>
+        <td><strong style="color:var(--text)">${r.name}</strong></td>
+        <td><span style="font-size:.72rem;background:var(--surface2);padding:.15rem .4rem;border-radius:3px;color:var(--muted)">${r.lab_id.toUpperCase()}</span></td>
+        <td style="color:var(--yellow);font-weight:600">+${r.coins} 🪙</td>
+        <td style="color:var(--muted);font-size:.78rem">${r.submitted_at ? r.submitted_at.slice(0,16).replace('T',' ') : '—'}</td>
+      </tr>`).join('');
+
+    document.getElementById('progressTable').innerHTML = `
+      <table class="prog-table">
+        <thead><tr>
+          <th>#</th><th>Flag</th><th>Lab</th><th>Dinocoins</th><th>Submitted</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('progressTable').innerHTML =
+      `<p style="color:var(--red);text-align:center">Failed to load: ${e.message}</p>`;
+  }
+}
+
+function exportProgress() {
+  if(!_progressData || !_progressData.rows.length) {
+    toast('No data to export', 'err');
+    return;
+  }
+  const header = 'Rank,Flag,Lab,Dinocoins,Submitted\n';
+  const rows = _progressData.rows.map((r, i) =>
+    `${i+1},"${r.name}",${r.lab_id},${r.coins},"${r.submitted_at || ''}"`
+  ).join('\n');
+  const blob = new Blob([header + rows], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'dinoseclabs-progress.csv';
+  a.click();
+  toast('CSV exported ✓');
+}
+
+// ─── Init ────────────────────────────────────────────────
+refreshStatus();
+loadNotesIndicators();
+setInterval(refreshStatus, 15000);
+setInterval(refreshUptime, 30000);
+refreshUptime();
+</script>
+</body>
+</html>
