@@ -1,4 +1,4 @@
-sr/bin/env
+#!/usr/bin/env bash
 # 
 #  DinosecLabs 
 #  Usage: bash setup.sh [--secret <your-secret>] [--auto-stop-hours]
@@ -120,18 +120,28 @@ check_packages() {
   info "Checking offline pip packages..."
   local pkg_dir="$SCRIPT_DIR/packages"
   local min_count=10
+  local needs_download=false
 
   if [[ ! -d "$pkg_dir" ]] || [[ $(ls "$pkg_dir"/*.whl 2>/dev/null | wc -l) -lt $min_count ]]; then
+    needs_download=true
+  elif ! docker run --rm \
+      -v "$SCRIPT_DIR:/work" \
+      -v "$pkg_dir:/packages" \
+      python:3.12-slim \
+      sh -c "pip install --no-index --find-links=/packages -r /work/dashboard/requirements.txt pyjwt --dry-run >/dev/null 2>&1"; then
+    warn "Offline packages are not compatible with the dashboard image. Refreshing..."
+    needs_download=true
+  fi
+
+  if [[ "$needs_download" == true ]]; then
     warn "Offline packages missing or incomplete. Downloading..."
     mkdir -p "$pkg_dir"
-    if python3 -m pip download \
-        flask docker pyjwt \
-        -d "$pkg_dir" \
-        --platform manylinux2014_x86_64 \
-        --python-version 312 \
-        --implementation cp \
-        --only-binary=:all: \
-        --quiet; then
+    rm -f "$pkg_dir"/*.whl
+    if docker run --rm \
+        -v "$SCRIPT_DIR:/work" \
+        -v "$pkg_dir:/packages" \
+        python:3.12-slim \
+        sh -c "pip download --only-binary=:all: -r /work/dashboard/requirements.txt pyjwt -d /packages --quiet"; then
       ok "Packages downloaded to packages/"
     else
       warn "Package download failed. Build may require internet access."
@@ -171,7 +181,7 @@ EOF
 build_dashboard() {
   info "Building dashboard image..."
   cd "$SCRIPT_DIR"
-  if docker-compose build dashboard --quiet 2>&1 | tail -3; then
+  if docker-compose build dashboard; then
     ok "Dashboard image built"
   else
     err "Dashboard build failed. Check logs above."
