@@ -108,7 +108,7 @@ El dashboard corre en **http://localhost:8000** y tiene cuatro pestanas:
 
 ```bash
 git clone https://github.com/Snifer/DinoSecL4b.git
-cd DinoSecL4b/owasp-labs
+cd DinoSecL4b
 bash setup.sh
 ```
 
